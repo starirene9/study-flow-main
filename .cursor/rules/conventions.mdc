@@ -1,0 +1,64 @@
+---
+alwaysApply: true
+---
+
+# 📘 Coding Conventions
+
+## TypeScript
+
+- Define interfaces/types for all props and shared shapes (see `types/studyflow.ts`).
+- Prefer explicit types; avoid `any` (use `unknown` if required).
+- Use `import type` for type-only imports when possible.
+
+## Naming
+
+- Components/files: PascalCase (`TimerDisplay.tsx`).
+- Functions/vars: camelCase (`timeRemaining`, `startCycle`).
+- Constants: UPPER_SNAKE_CASE (`FOCUS_PRESETS`).
+- Hooks: `use*` prefix (`useStudyFlow`, `useIsMobile`).
+- Event handlers: `handle*`.
+
+## Component Pattern
+
+```tsx
+interface Props {
+  required: string;
+  optional?: number;
+  variant?: "focus" | "workout";
+}
+const Component: React.FC<Props> = ({
+  required,
+  optional,
+  variant = "focus",
+}) => {
+  return <div>...</div>;
+};
+export default Component;
+```
+
+## Imports Order
+
+1. React & hooks
+2. Third-party libs
+3. Internal components (`@/components/...`)
+4. Utilities (`@/lib/...`)
+5. Types (`@/types/...`)
+6. Relative paths
+
+## State & Effects
+
+- Use Context for global state; keep local UI state with `useState`.
+- Memoize callbacks passed down (`useCallback`); memoize expensive derived data (`useMemo`).
+- Always clean up intervals/timeouts in `useEffect`.
+
+## Accessibility & UX
+
+- Semantic HTML, ARIA where needed, keyboard navigable controls.
+- Keep buttons/links focusable; manage focus in modals/dialogs.
+
+## Anti-Patterns
+
+- ❌ Mutating state directly.
+- ❌ Side effects in render.
+- ❌ Missing dependency arrays in hooks.
+- ❌ Unbounded inline object/array creation without memoization.

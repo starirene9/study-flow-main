@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+
+# 🏛️ Architecture Rules
+
+## App Structure
+
+- SPA built with Vite + React + TypeScript; routes via React Router v6.
+- Three-layer components:
+  - `pages/`: route-level screens.
+  - `components/studyflow/`: domain features (timers, summaries, YouTube).
+  - `components/ui/`: shadcn-ui primitives.
+- Context-driven state: `StudyFlowContext` handles sessions, settings, logs.
+- Persistence: browser `localStorage` via `lib/storage.ts` (no backend).
+
+## State & Data Flow
+
+- Use Context API for global state; `useState` for local UI state.
+- Flow: User Action → Context Method → Storage → State Update → UI.
+- No external state libs (Redux/Zustand/etc.).
+- Log sessions and settings through storage helpers only.
+
+## Routing
+
+- Define routes in `App.tsx` within `pages/`.
+- Guard/redirect with `useEffect` in pages (e.g., redirect idle sessions to `/`).
+
+## Files & Modules
+
+- One component per file; file name = component name (PascalCase).
+- Keep business logic in context/hooks, not UI primitives.
+- Utilities stay pure in `lib/`; types live in `types/studyflow.ts`.
+
+## Dependencies
+
+- Allowed: React, React Router, shadcn-ui/Radix, Tailwind, React Query, date-fns, zod, lucide.
+- Avoid: external state libs, CSS-in-JS, heavy UI frameworks (MUI/AntD/Chakra).

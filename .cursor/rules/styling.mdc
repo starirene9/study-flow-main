@@ -1,0 +1,25 @@
+---
+alwaysApply: true
+---
+
+# 🎨 Styling Rules
+
+## Tailwind & Tokens
+
+- Prefer Tailwind utility classes; avoid inline styles.
+- Use CSS variables for theme colors: `--primary`, `--workout`, `--idle` (+ `-soft`, `-glow`).
+- Dark mode via `dark:` class; keep variables in `index.css`.
+- Use `cn()` for conditional class composition.
+
+## Layout & Components
+
+- Mobile-first responsive (`sm`, `md`, `lg`).
+- Reusable visuals: `glass-card`, `timer-display`, `progress-ring-*`.
+- Animations from `tailwind.config.ts`: `animate-fade-in`, `animate-slide-up`, `animate-scale-in`; set delays with inline style when needed.
+- Keep component variants explicit (`variant="focus" | "workout"`, `size` props).
+
+## Do / Don’t
+
+- ✅ Use Tailwind + CSS vars for all colors/shadows.
+- ✅ Keep styles colocated with components via classNames.
+- ❌ No CSS-in-JS; ❌ no hardcoded hex colors; ❌ no global CSS outside `@layer`.
