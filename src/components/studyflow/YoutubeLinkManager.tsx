@@ -91,15 +91,31 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     if (newUrl && extractVideoId(newUrl) && !isProcessing) {
       setIsProcessing(true);
       try {
-        console.log('Adding video:', newUrl, newTitle);
-        await onAdd(newUrl, newTitle || undefined);
-        console.log('Video added successfully');
+        console.log('YoutubeLinkManager: Adding video', { url: newUrl, title: newTitle, workoutMinutes });
+        
+        // Auto-add workout duration to title if not present
+        let finalTitle = newTitle?.trim() || undefined;
+        if (finalTitle && !extractDurationFromTitle(finalTitle)) {
+          // Add duration prefix if not present
+          finalTitle = `${workoutMinutes} Min ${finalTitle}`;
+          console.log('Auto-added duration to title:', finalTitle);
+        } else if (!finalTitle) {
+          // Generate default title with duration
+          finalTitle = `${workoutMinutes} Min Workout Video`;
+        }
+        
+        console.log('YoutubeLinkManager: Calling onAdd with', { url: newUrl, title: finalTitle });
+        await onAdd(newUrl, finalTitle);
+        console.log('YoutubeLinkManager: onAdd completed');
+        
         // Clear form
         setNewUrl('');
         setNewTitle('');
         setIsAdding(false);
-        // Note: The parent component should update the links prop
-        // which will trigger filteredLinks to recalculate
+        
+        // Wait a bit for parent state to update
+        await new Promise(resolve => setTimeout(resolve, 400));
+        console.log('YoutubeLinkManager: State should be updated now');
       } catch (error) {
         console.error('Error adding video:', error);
       } finally {

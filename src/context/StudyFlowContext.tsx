@@ -130,16 +130,31 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // YouTube Link management
   const addYoutubeLink = useCallback(async (url: string, title?: string) => {
     try {
-      console.log('Context: Adding video', url, title);
+      console.log('Context: Adding video', { url, title });
       const newLink = await addLinkStorage(url, title);
       console.log('Context: Video added to storage', newLink);
       
-      // Small delay to ensure database update is complete
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Longer delay to ensure database update is complete and propagated
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Force refresh links from storage
-      const updatedLinks = await getYoutubeLinks();
-      console.log('Context: Fetched updated links', updatedLinks.map(l => ({ id: l.id, title: l.title, isUserAdded: !DEFAULT_YOUTUBE_LINKS.some(d => d.url === l.url) })));
+      // Force refresh links from storage multiple times to ensure we get the latest
+      let updatedLinks = await getYoutubeLinks();
+      console.log('Context: First fetch', updatedLinks.length, 'links');
+      
+      // If new link not found, try again
+      if (!updatedLinks.find(l => l.id === newLink.id || l.url === newLink.url)) {
+        console.log('Context: New link not found, retrying...');
+        await new Promise(resolve => setTimeout(resolve, 200));
+        updatedLinks = await getYoutubeLinks();
+        console.log('Context: Second fetch', updatedLinks.length, 'links');
+      }
+      
+      console.log('Context: Final links', updatedLinks.map(l => ({ 
+        id: l.id, 
+        title: l.title, 
+        url: l.url,
+        isUserAdded: !DEFAULT_YOUTUBE_LINKS.some(d => d.url === l.url) 
+      })));
       
       // Create new array reference to trigger re-render
       setYoutubeLinks([...updatedLinks]);
