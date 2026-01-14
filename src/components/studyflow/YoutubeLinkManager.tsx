@@ -59,13 +59,9 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       return videoDuration === workoutMinutes;
     });
     
-    // For user-added videos, check duration but be more lenient
-    // If duration matches, include it. If no duration found, still include it.
-    const matchingUserVideos = userAddedVideos.filter((link) => {
-      const videoDuration = extractDurationFromTitle(link.title);
-      // Include if duration matches OR if no duration found (user might not have included it)
-      return videoDuration === null || videoDuration === workoutMinutes;
-    });
+    // For user-added videos, show all of them regardless of duration
+    // This allows users to add videos without worrying about title format
+    const matchingUserVideos = userAddedVideos;
     
     console.log('After duration filter:', { 
       matchingUser: matchingUserVideos.length,
