@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Check, ExternalLink } from 'lucide-react';
+import { Plus, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,6 @@ const extractDurationFromTitle = (title: string): number | null => {
 interface YoutubeLinkManagerProps {
   links: YoutubeLink[];
   onAdd: (url: string, title?: string) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
   onActivate: (id: string) => Promise<void>;
   workoutMinutes: number;
 }
@@ -23,7 +22,6 @@ interface YoutubeLinkManagerProps {
 const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   links,
   onAdd,
-  onDelete,
   onActivate,
   workoutMinutes,
 }) => {
@@ -64,18 +62,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       } finally {
         setIsProcessing(false);
       }
-    }
-  };
-  
-  const handleDelete = async (id: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    try {
-      await onDelete(id);
-    } catch (error) {
-      console.error('Error deleting video:', error);
-    } finally {
-      setIsProcessing(false);
     }
   };
   
@@ -194,15 +180,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
                 onClick={() => window.open(link.url, '_blank')}
               >
                 <ExternalLink className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                onClick={() => handleDelete(link.id)}
-                disabled={isProcessing}
-              >
-                <Trash2 className="w-4 h-4" />
               </Button>
             </div>
           </div>

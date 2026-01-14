@@ -148,7 +148,6 @@ const Index = () => {
             <YoutubeLinkManager
               links={youtubeLinks}
               onAdd={addYoutubeLink}
-              onDelete={deleteYoutubeLink}
               onActivate={activateYoutubeLink}
               workoutMinutes={settings.workoutMinutes}
             />
