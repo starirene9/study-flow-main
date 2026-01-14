@@ -34,6 +34,10 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     return new Set(DEFAULT_YOUTUBE_LINKS.map(link => link.url));
   }, []);
 
+  // Store stable order for each workout duration
+  // This ensures videos don't reorder when clicking
+  const [stableOrderMap, setStableOrderMap] = useState<Map<number, YoutubeLink[]>>(new Map());
+
   // Filter links to show videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
     console.log('Filtering links:', { 
@@ -76,22 +80,69 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       userVideos: matchingUserVideos.map(v => ({ title: v.title, duration: extractDurationFromTitle(v.title) }))
     });
     
-    // Combine default videos (up to 3) with all user-added videos
+    // Check if we have a stable order for this duration
+    const existingOrder = stableOrderMap.get(workoutMinutes);
+    
+    // If we have an existing order and the video IDs match, use the stable order
+    if (existingOrder) {
+      const existingIds = new Set(existingOrder.map(v => v.id));
+      const currentIds = new Set([...matchingDefaultVideos, ...matchingUserVideos].map(v => v.id));
+      
+      // Check if the sets are the same (same videos)
+      if (existingIds.size === currentIds.size && 
+          [...existingIds].every(id => currentIds.has(id))) {
+        // Reconstruct order using current video data but maintaining stable order
+        const orderMap = new Map(existingOrder.map(v => [v.id, v]));
+        const orderedVideos = existingOrder
+          .map(v => {
+            const current = [...matchingDefaultVideos, ...matchingUserVideos].find(l => l.id === v.id);
+            return current || v;
+          })
+          .filter(v => {
+            // Only include videos that still match the duration
+            const videoDuration = extractDurationFromTitle(v.title);
+            return videoDuration === workoutMinutes;
+          });
+        
+        // Add any new videos that weren't in the stable order
+        const newVideos = [...matchingDefaultVideos, ...matchingUserVideos].filter(
+          v => !orderMap.has(v.id)
+        );
+        
+        return [...orderedVideos, ...newVideos];
+      }
+    }
+    
+    // No stable order exists or videos have changed - create new stable order
     let defaultVideosToShow: YoutubeLink[] = [];
     
-    // Select up to 3 random default videos
+    // Select up to 3 default videos (use stable sort by ID instead of random)
     if (matchingDefaultVideos.length >= 3) {
-      const shuffled = [...matchingDefaultVideos].sort(() => Math.random() - 0.5);
-      defaultVideosToShow = shuffled.slice(0, 3);
+      // Sort by ID for consistent ordering, then take first 3
+      const sorted = [...matchingDefaultVideos].sort((a, b) => a.id.localeCompare(b.id));
+      defaultVideosToShow = sorted.slice(0, 3);
     } else {
       // If less than 3 default videos, use all available
       defaultVideosToShow = matchingDefaultVideos;
     }
     
+    // Sort user-added videos by created_at for consistent ordering
+    const sortedUserVideos = [...matchingUserVideos].sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+    );
+    
     // Combine default videos with user-added videos
-    // User-added videos come after default videos
-    return [...defaultVideosToShow, ...matchingUserVideos];
-  }, [links, workoutMinutes, defaultVideoUrls]);
+    const combined = [...defaultVideosToShow, ...sortedUserVideos];
+    
+    // Store this order for future use
+    setStableOrderMap(prev => {
+      const newMap = new Map(prev);
+      newMap.set(workoutMinutes, combined);
+      return newMap;
+    });
+    
+    return combined;
+  }, [links, workoutMinutes, defaultVideoUrls, stableOrderMap]);
   const [newTitle, setNewTitle] = useState('');
   const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
