@@ -29,20 +29,16 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
 }) => {
   const [newUrl, setNewUrl] = useState('');
   
-  // Filter links to show only one video that matches workout duration exactly
+  // Filter links to show up to 3 different videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
-    // First, try to find exact match
-    const exactMatch = links.find((link) => {
+    // Find all videos that match workout duration exactly
+    const matchingVideos = links.filter((link) => {
       const videoDuration = extractDurationFromTitle(link.title);
       return videoDuration === workoutMinutes;
     });
     
-    if (exactMatch) {
-      return [exactMatch];
-    }
-    
-    // If no exact match, return empty array (user should add matching video)
-    return [];
+    // Return up to 3 different videos (or all if less than 3)
+    return matchingVideos.slice(0, 3);
   }, [links, workoutMinutes]);
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -143,8 +139,13 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       <div className="space-y-2">
         {filteredLinks.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-4 space-y-2">
-            <p>No video found for {workoutMinutes} min workout.</p>
-            <p className="text-xs">Please add a {workoutMinutes} min workout video.</p>
+            <p>No videos found for {workoutMinutes} min workout.</p>
+            <p className="text-xs">Please add {workoutMinutes} min workout videos (recommended: 3 different videos).</p>
+          </div>
+        )}
+        {filteredLinks.length > 0 && filteredLinks.length < 3 && (
+          <div className="text-xs text-muted-foreground text-center py-2 bg-muted/50 rounded-lg">
+            <p>Showing {filteredLinks.length} of {workoutMinutes} min videos. Add more for variety!</p>
           </div>
         )}
         {filteredLinks.map((link) => (
