@@ -140,13 +140,42 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
   
   const activateYoutubeLink = useCallback(async (id: string) => {
-    await activateLinkStorage(id);
-    const [updatedLinks, updatedSettings] = await Promise.all([
-      getYoutubeLinks(),
-      getSettings(),
-    ]);
-    setYoutubeLinks(updatedLinks);
-    setSettings(updatedSettings);
+    try {
+      console.log('Context: Activating link', id);
+      await activateLinkStorage(id);
+      console.log('Context: Link activated in storage');
+      
+      // Small delay to ensure database update is complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Force refresh both links and settings
+      const [updatedLinks, updatedSettings] = await Promise.all([
+        getYoutubeLinks(),
+        getSettings(),
+      ]);
+      
+      console.log('Context: Updated links', updatedLinks.map(l => ({ id: l.id, isActive: l.isActive })));
+      
+      // Update state to trigger re-render - use functional update to ensure latest state
+      setYoutubeLinks(prev => {
+        const newLinks = updatedLinks.map(link => ({
+          ...link,
+          isActive: link.id === id,
+        }));
+        console.log('Context: Setting new links', newLinks.map(l => ({ id: l.id, isActive: l.isActive })));
+        return newLinks;
+      });
+      setSettings(prev => ({ ...prev, ...updatedSettings }));
+    } catch (error) {
+      console.error('Error in activateYoutubeLink:', error);
+      // Still try to refresh the data
+      const [updatedLinks, updatedSettings] = await Promise.all([
+        getYoutubeLinks(),
+        getSettings(),
+      ]);
+      setYoutubeLinks(updatedLinks);
+      setSettings(updatedSettings);
+    }
   }, []);
   
   // Log session completion

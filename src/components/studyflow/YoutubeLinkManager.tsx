@@ -71,9 +71,17 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   
   const handleActivate = async (id: string) => {
     if (isProcessing) return;
+    const currentLink = links.find(l => l.id === id);
+    if (currentLink?.isActive) {
+      // Already active, no need to do anything
+      return;
+    }
+    
     setIsProcessing(true);
     try {
+      console.log('Activating video:', id);
       await onActivate(id);
+      console.log('Video activated successfully');
     } catch (error) {
       console.error('Error activating video:', error);
     } finally {

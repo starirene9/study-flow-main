@@ -252,32 +252,52 @@ export const deleteYoutubeLink = async (id: string): Promise<void> => {
 
 export const activateYoutubeLink = async (id: string): Promise<void> => {
   try {
-    // Update all links to set is_active
-    await supabase
+    // Update all links to set is_active to false
+    const { error: updateAllError } = await supabase
       .from("youtube_links")
       .update({ is_active: false })
       .eq("user_id", getUserId());
 
-    await supabase
-      .from("youtube_links")
-      .update({ is_active: true })
-      .eq("id", id)
-      .eq("user_id", getUserId());
+    if (updateAllError) {
+      console.error('Error deactivating all links:', updateAllError);
+    }
 
-    // Get active link and update settings
-    const { data } = await supabase
+    // Update the selected link to active
+    const { error: updateError, data: updateData } = await supabase
       .from("youtube_links")
-      .select("url")
+      .update({ is_active: true, updated_at: new Date().toISOString() })
       .eq("id", id)
+      .eq("user_id", getUserId())
+      .select()
       .single();
 
-    if (data) {
+    if (updateError) {
+      console.error('Error activating YouTube link:', updateError);
+      throw updateError;
+    }
+
+    // Get active link and update settings
+    if (updateData) {
       const settings = await getSettings();
-      settings.activeYoutubeUrl = data.url;
+      settings.activeYoutubeUrl = updateData.url;
       await saveSettings(settings);
+    } else {
+      // Fallback: get the link data
+      const { data } = await supabase
+        .from("youtube_links")
+        .select("url")
+        .eq("id", id)
+        .single();
+
+      if (data) {
+        const settings = await getSettings();
+        settings.activeYoutubeUrl = data.url;
+        await saveSettings(settings);
+      }
     }
   } catch (error) {
     console.error('Error activating YouTube link:', error);
+    // Fallback to local storage approach
     const links = await getYoutubeLinks();
     const updated = links.map((link) => ({
       ...link,
