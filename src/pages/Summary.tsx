@@ -4,6 +4,7 @@ import { Home, Brain, Dumbbell, Trophy, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStudyFlow } from '@/context/StudyFlowContext';
 import HourlyTimelineGrid from '@/components/studyflow/HourlyTimelineGrid';
+import ThemeToggle from '@/components/ThemeToggle';
 import type { DailySummary } from '@/types/studyflow';
 
 const Summary = () => {
@@ -52,13 +53,16 @@ const Summary = () => {
               <Calendar className="w-5 h-5 text-muted-foreground" />
               <h1 className="text-lg font-semibold">Daily Summary</h1>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/')}
-            >
-              <Home className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+              >
+                <Home className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>

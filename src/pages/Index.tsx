@@ -7,6 +7,7 @@ import TimePresetButtons from '@/components/studyflow/TimePresetButtons';
 import SliderTimePicker from '@/components/studyflow/SliderTimePicker';
 import YoutubeLinkManager from '@/components/studyflow/YoutubeLinkManager';
 import TodayMiniSummary from '@/components/studyflow/TodayMiniSummary';
+import ThemeToggle from '@/components/ThemeToggle';
 import { FOCUS_PRESETS, WORKOUT_PRESETS } from '@/types/studyflow';
 import type { DailySummary } from '@/types/studyflow';
 
@@ -48,14 +49,17 @@ const Index = () => {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container max-w-2xl py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-workout flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-workout flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">StudyFlow</h1>
+                <p className="text-xs text-muted-foreground">Focus. Move. Repeat.</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold">StudyFlow</h1>
-              <p className="text-xs text-muted-foreground">Focus. Move. Repeat.</p>
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>

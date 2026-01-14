@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
@@ -37,7 +38,10 @@ const Auth: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-scale-in">
+      <div className="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-scale-in relative">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold">StudyFlow Account</h1>
           <p className="text-sm text-muted-foreground">
