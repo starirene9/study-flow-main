@@ -14,9 +14,9 @@ const extractDurationFromTitle = (title: string): number | null => {
 
 interface YoutubeLinkManagerProps {
   links: YoutubeLink[];
-  onAdd: (url: string, title?: string) => void;
-  onDelete: (id: string) => void;
-  onActivate: (id: string) => void;
+  onAdd: (url: string, title?: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onActivate: (id: string) => Promise<void>;
   workoutMinutes: number;
 }
 
@@ -39,13 +39,45 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   }, [links, workoutMinutes]);
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
-  const handleAdd = () => {
-    if (newUrl && extractVideoId(newUrl)) {
-      onAdd(newUrl, newTitle || undefined);
-      setNewUrl('');
-      setNewTitle('');
-      setIsAdding(false);
+  const handleAdd = async () => {
+    if (newUrl && extractVideoId(newUrl) && !isProcessing) {
+      setIsProcessing(true);
+      try {
+        await onAdd(newUrl, newTitle || undefined);
+        setNewUrl('');
+        setNewTitle('');
+        setIsAdding(false);
+      } catch (error) {
+        console.error('Error adding video:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  };
+  
+  const handleDelete = async (id: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await onDelete(id);
+    } catch (error) {
+      console.error('Error deleting video:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  const handleActivate = async (id: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await onActivate(id);
+    } catch (error) {
+      console.error('Error activating video:', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
   
@@ -81,10 +113,10 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           <div className="flex gap-2">
             <Button
               onClick={handleAdd}
-              disabled={!newUrl || !extractVideoId(newUrl)}
+              disabled={!newUrl || !extractVideoId(newUrl) || isProcessing}
               className="bg-workout hover:bg-workout-glow text-workout-foreground"
             >
-              Add
+              {isProcessing ? 'Adding...' : 'Add'}
             </Button>
             <Button variant="ghost" onClick={() => setIsAdding(false)}>
               Cancel
@@ -111,12 +143,14 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
-                onClick={() => onActivate(link.id)}
+                onClick={() => handleActivate(link.id)}
+                disabled={isProcessing}
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all',
                   link.isActive
                     ? 'border-workout bg-workout text-workout-foreground'
-                    : 'border-muted-foreground/30 hover:border-workout'
+                    : 'border-muted-foreground/30 hover:border-workout',
+                  isProcessing && 'opacity-50 cursor-not-allowed'
                 )}
               >
                 {link.isActive && <Check className="w-3 h-3" />}
@@ -141,7 +175,8 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                onClick={() => onDelete(link.id)}
+                onClick={() => handleDelete(link.id)}
+                disabled={isProcessing}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

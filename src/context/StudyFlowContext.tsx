@@ -30,9 +30,9 @@ interface StudyFlowContextType {
   
   // YouTube Links
   youtubeLinks: YoutubeLink[];
-  addYoutubeLink: (url: string, title?: string) => void;
-  deleteYoutubeLink: (id: string) => void;
-  activateYoutubeLink: (id: string) => void;
+  addYoutubeLink: (url: string, title?: string) => Promise<void>;
+  deleteYoutubeLink: (id: string) => Promise<void>;
+  activateYoutubeLink: (id: string) => Promise<void>;
   activeLink: YoutubeLink | null;
   currentWorkoutVideo: YoutubeLink | null; // Random video for current workout
   // Session State
