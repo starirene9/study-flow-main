@@ -61,9 +61,14 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       return videoDuration === workoutMinutes;
     });
     
-    // For user-added videos, show all of them regardless of duration
-    // This allows users to add videos without worrying about title format
-    const matchingUserVideos = userAddedVideos;
+    // For user-added videos, filter by duration to match workout time
+    // Only show user-added videos that match the current workout duration
+    const matchingUserVideos = userAddedVideos.filter((link) => {
+      const videoDuration = extractDurationFromTitle(link.title);
+      // If duration is found, it must match exactly
+      // If no duration found, don't show it (user should have selected duration when adding)
+      return videoDuration === workoutMinutes;
+    });
     
     console.log('After duration filter:', { 
       matchingUser: matchingUserVideos.length,
@@ -71,19 +76,21 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       userVideos: matchingUserVideos.map(v => ({ title: v.title, duration: extractDurationFromTitle(v.title) }))
     });
     
-    // If user has added videos, show all matching user-added videos
-    if (matchingUserVideos.length > 0) {
-      return matchingUserVideos;
-    }
+    // Combine default videos (up to 3) with all user-added videos
+    let defaultVideosToShow: YoutubeLink[] = [];
     
-    // If no user-added videos, show up to 3 random default videos
+    // Select up to 3 random default videos
     if (matchingDefaultVideos.length >= 3) {
       const shuffled = [...matchingDefaultVideos].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, 3);
+      defaultVideosToShow = shuffled.slice(0, 3);
+    } else {
+      // If less than 3 default videos, use all available
+      defaultVideosToShow = matchingDefaultVideos;
     }
     
-    // If less than 3 default videos, return all available
-    return matchingDefaultVideos;
+    // Combine default videos with user-added videos
+    // User-added videos come after default videos
+    return [...defaultVideosToShow, ...matchingUserVideos];
   }, [links, workoutMinutes, defaultVideoUrls]);
   const [newTitle, setNewTitle] = useState('');
   const [selectedDuration, setSelectedDuration] = useState<string>('');
