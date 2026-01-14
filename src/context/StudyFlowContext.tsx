@@ -146,7 +146,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.log('Context: Link activated in storage');
       
       // Small delay to ensure database update is complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
       
       // Force refresh both links and settings
       const [updatedLinks, updatedSettings] = await Promise.all([
@@ -154,18 +154,19 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getSettings(),
       ]);
       
-      console.log('Context: Updated links', updatedLinks.map(l => ({ id: l.id, isActive: l.isActive })));
+      console.log('Context: Fetched updated links', updatedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
       
-      // Update state to trigger re-render - use functional update to ensure latest state
-      setYoutubeLinks(prev => {
-        const newLinks = updatedLinks.map(link => ({
-          ...link,
-          isActive: link.id === id,
-        }));
-        console.log('Context: Setting new links', newLinks.map(l => ({ id: l.id, isActive: l.isActive })));
-        return newLinks;
-      });
-      setSettings(prev => ({ ...prev, ...updatedSettings }));
+      // Ensure only one link is active
+      const normalizedLinks = updatedLinks.map(link => ({
+        ...link,
+        isActive: link.id === id, // Force the clicked link to be active
+      }));
+      
+      console.log('Context: Setting normalized links', normalizedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
+      
+      // Update state directly - this will trigger re-render
+      setYoutubeLinks(normalizedLinks);
+      setSettings(updatedSettings);
     } catch (error) {
       console.error('Error in activateYoutubeLink:', error);
       // Still try to refresh the data
@@ -173,7 +174,12 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getYoutubeLinks(),
         getSettings(),
       ]);
-      setYoutubeLinks(updatedLinks);
+      // Ensure only clicked link is active
+      const normalizedLinks = updatedLinks.map(link => ({
+        ...link,
+        isActive: link.id === id,
+      }));
+      setYoutubeLinks(normalizedLinks);
       setSettings(updatedSettings);
     }
   }, []);
