@@ -320,7 +320,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
                 onClick={() => handleActivate(link.id)}
-                disabled={isProcessing}
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all',
                   link.isActive
