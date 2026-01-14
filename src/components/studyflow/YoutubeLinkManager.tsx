@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Plus, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { YoutubeLink, DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
 import { extractVideoId } from '@/lib/storage';
@@ -84,24 +86,29 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     return matchingDefaultVideos;
   }, [links, workoutMinutes, defaultVideoUrls]);
   const [newTitle, setNewTitle] = useState('');
+  const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
+  const durationOptions = [10, 15, 20, 25, 30];
+  
   const handleAdd = async () => {
-    if (newUrl && extractVideoId(newUrl) && !isProcessing) {
+    if (newUrl && extractVideoId(newUrl) && selectedDuration && !isProcessing) {
       setIsProcessing(true);
       try {
-        console.log('YoutubeLinkManager: Adding video', { url: newUrl, title: newTitle, workoutMinutes });
+        const duration = parseInt(selectedDuration, 10);
+        console.log('YoutubeLinkManager: Adding video', { url: newUrl, title: newTitle, duration });
         
-        // Auto-add workout duration to title if not present
+        // Create title with selected duration
         let finalTitle = newTitle?.trim() || undefined;
-        if (finalTitle && !extractDurationFromTitle(finalTitle)) {
-          // Add duration prefix if not present
-          finalTitle = `${workoutMinutes} Min ${finalTitle}`;
-          console.log('Auto-added duration to title:', finalTitle);
-        } else if (!finalTitle) {
+        if (finalTitle) {
+          // Ensure title starts with duration
+          if (!extractDurationFromTitle(finalTitle)) {
+            finalTitle = `${duration} Min ${finalTitle}`;
+          }
+        } else {
           // Generate default title with duration
-          finalTitle = `${workoutMinutes} Min Workout Video`;
+          finalTitle = `${duration} Min Workout Video`;
         }
         
         console.log('YoutubeLinkManager: Calling onAdd with', { url: newUrl, title: finalTitle });
@@ -111,6 +118,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
         // Clear form
         setNewUrl('');
         setNewTitle('');
+        setSelectedDuration('');
         setIsAdding(false);
         
         // Wait a bit for parent state to update
@@ -160,28 +168,73 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       </div>
       
       {isAdding && (
-        <div className="space-y-2 p-4 bg-muted rounded-lg animate-slide-up">
-          <Input
-            placeholder="YouTube URL"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            className="bg-background"
-          />
-          <Input
-            placeholder="Title (optional)"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            className="bg-background"
-          />
-          <div className="flex gap-2">
+        <div className="space-y-3 p-4 bg-muted rounded-lg animate-slide-up">
+          <div className="space-y-2">
+            <Label htmlFor="duration-select" className="text-sm font-medium">
+              Duration (required) *
+            </Label>
+            <Select
+              value={selectedDuration}
+              onValueChange={setSelectedDuration}
+              required
+            >
+              <SelectTrigger id="duration-select" className="bg-background">
+                <SelectValue placeholder="Select duration" />
+              </SelectTrigger>
+              <SelectContent>
+                {durationOptions.map((duration) => (
+                  <SelectItem key={duration} value={duration.toString()}>
+                    {duration} Min
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="youtube-url" className="text-sm font-medium">
+              YouTube URL *
+            </Label>
+            <Input
+              id="youtube-url"
+              placeholder="https://www.youtube.com/watch?v=..."
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              className="bg-background"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="video-title" className="text-sm font-medium">
+              Title (optional)
+            </Label>
+            <Input
+              id="video-title"
+              placeholder="Video title (duration will be added automatically)"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className="bg-background"
+            />
+          </div>
+          
+          <div className="flex gap-2 pt-2">
             <Button
               onClick={handleAdd}
-              disabled={!newUrl || !extractVideoId(newUrl) || isProcessing}
+              disabled={!newUrl || !extractVideoId(newUrl) || !selectedDuration || isProcessing}
               className="bg-workout hover:bg-workout-glow text-workout-foreground"
             >
               {isProcessing ? 'Adding...' : 'Add'}
             </Button>
-            <Button variant="ghost" onClick={() => setIsAdding(false)}>
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setIsAdding(false);
+                setNewUrl('');
+                setNewTitle('');
+                setSelectedDuration('');
+              }}
+            >
               Cancel
             </Button>
           </div>
