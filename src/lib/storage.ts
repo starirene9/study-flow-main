@@ -1,13 +1,20 @@
-import { UserSettings, YoutubeLink, SessionLog, DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
-import { supabase } from './supabase';
+import { UserSettings, YoutubeLink, SessionLog, DEFAULT_YOUTUBE_LINKS } from "@/types/studyflow";
+import { supabase } from "./supabase";
 
 const STORAGE_KEYS = {
-  SETTINGS: 'studyflow_settings',
-  YOUTUBE_LINKS: 'studyflow_youtube_links',
-  SESSION_LOGS: 'studyflow_session_logs',
+  SETTINGS: "studyflow_settings",
+  YOUTUBE_LINKS: "studyflow_youtube_links",
+  SESSION_LOGS: "studyflow_session_logs",
 } as const;
 
-const DEFAULT_USER_ID = 'default';
+const DEFAULT_USER_ID = "default";
+let currentUserId = DEFAULT_USER_ID;
+
+export const setCurrentUserId = (userId: string | null) => {
+  currentUserId = userId || DEFAULT_USER_ID;
+};
+
+const getUserId = () => currentUserId;
 
 // Generate unique ID
 export const generateId = (): string => {
@@ -23,9 +30,9 @@ export const getTodayDate = (): string => {
 export const getSettings = async (): Promise<UserSettings> => {
   try {
     const { data, error } = await supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', DEFAULT_USER_ID)
+      .from("user_settings")
+      .select("*")
+      .eq("user_id", getUserId())
       .single();
 
     if (error && error.code !== 'PGRST116') {
@@ -73,16 +80,19 @@ export const getSettingsLocal = (): UserSettings => {
 export const saveSettings = async (settings: UserSettings): Promise<void> => {
   try {
     const { error } = await supabase
-      .from('user_settings')
-      .upsert({
-        user_id: DEFAULT_USER_ID,
-        focus_minutes: settings.focusMinutes,
-        workout_minutes: settings.workoutMinutes,
-        active_youtube_url: settings.activeYoutubeUrl,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id',
-      });
+      .from("user_settings")
+      .upsert(
+        {
+          user_id: getUserId(),
+          focus_minutes: settings.focusMinutes,
+          workout_minutes: settings.workoutMinutes,
+          active_youtube_url: settings.activeYoutubeUrl,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id",
+        },
+      );
 
     if (error) {
       console.error('Error saving settings to Supabase:', error);
@@ -103,10 +113,10 @@ export const saveSettingsLocal = (settings: UserSettings): void => {
 export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
   try {
     const { data, error } = await supabase
-      .from('youtube_links')
-      .select('*')
-      .eq('user_id', DEFAULT_USER_ID)
-      .order('created_at', { ascending: true });
+      .from("youtube_links")
+      .select("*")
+      .eq("user_id", getUserId())
+      .order("created_at", { ascending: true });
 
     if (error) {
       console.error('Error fetching YouTube links from Supabase:', error);
@@ -149,17 +159,17 @@ export const saveYoutubeLinks = async (links: YoutubeLink[]): Promise<void> => {
   try {
     // Delete existing links
     await supabase
-      .from('youtube_links')
+      .from("youtube_links")
       .delete()
-      .eq('user_id', DEFAULT_USER_ID);
+      .eq("user_id", getUserId());
 
     // Insert new links
     const { error } = await supabase
-      .from('youtube_links')
+      .from("youtube_links")
       .insert(
         links.map((link) => ({
           id: link.id,
-          user_id: DEFAULT_USER_ID,
+          user_id: getUserId(),
           title: link.title,
           url: link.url,
           is_active: link.isActive,
@@ -192,10 +202,10 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
 
   try {
     const { error } = await supabase
-      .from('youtube_links')
+      .from("youtube_links")
       .insert({
         id: newLink.id,
-        user_id: DEFAULT_USER_ID,
+        user_id: getUserId(),
         title: newLink.title,
         url: newLink.url,
         is_active: newLink.isActive,
@@ -221,10 +231,10 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
 export const deleteYoutubeLink = async (id: string): Promise<void> => {
   try {
     const { error } = await supabase
-      .from('youtube_links')
+      .from("youtube_links")
       .delete()
-      .eq('id', id)
-      .eq('user_id', DEFAULT_USER_ID);
+      .eq("id", id)
+      .eq("user_id", getUserId());
 
     if (error) {
       console.error('Error deleting YouTube link from Supabase:', error);
@@ -244,21 +254,21 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
   try {
     // Update all links to set is_active
     await supabase
-      .from('youtube_links')
+      .from("youtube_links")
       .update({ is_active: false })
-      .eq('user_id', DEFAULT_USER_ID);
+      .eq("user_id", getUserId());
 
     await supabase
-      .from('youtube_links')
+      .from("youtube_links")
       .update({ is_active: true })
-      .eq('id', id)
-      .eq('user_id', DEFAULT_USER_ID);
+      .eq("id", id)
+      .eq("user_id", getUserId());
 
     // Get active link and update settings
     const { data } = await supabase
-      .from('youtube_links')
-      .select('url')
-      .eq('id', id)
+      .from("youtube_links")
+      .select("url")
+      .eq("id", id)
       .single();
 
     if (data) {
@@ -288,13 +298,13 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
 export const getSessionLogs = async (date?: string): Promise<SessionLog[]> => {
   try {
     let query = supabase
-      .from('session_logs')
-      .select('*')
-      .eq('user_id', DEFAULT_USER_ID)
-      .order('start_time', { ascending: false });
+      .from("session_logs")
+      .select("*")
+      .eq("user_id", getUserId())
+      .order("start_time", { ascending: false });
 
     if (date) {
-      query = query.eq('session_date', date);
+      query = query.eq("session_date", date);
     }
 
     const { data, error } = await query;
@@ -341,10 +351,10 @@ export const saveSessionLog = async (log: Omit<SessionLog, 'id'>): Promise<Sessi
 
   try {
     const { error } = await supabase
-      .from('session_logs')
+      .from("session_logs")
       .insert({
         id: newLog.id,
-        user_id: DEFAULT_USER_ID,
+        user_id: getUserId(),
         session_date: newLog.sessionDate,
         type: newLog.type,
         start_time: newLog.startTime.toISOString(),
