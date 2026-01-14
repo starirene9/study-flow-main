@@ -29,7 +29,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
 }) => {
   const [newUrl, setNewUrl] = useState('');
   
-  // Filter links to show up to 3 different videos that match workout duration exactly
+  // Filter links to show 3 random videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
     // Find all videos that match workout duration exactly
     const matchingVideos = links.filter((link) => {
@@ -37,8 +37,15 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       return videoDuration === workoutMinutes;
     });
     
-    // Return up to 3 different videos (or all if less than 3)
-    return matchingVideos.slice(0, 3);
+    // If we have 3 or more videos, randomly select 3
+    if (matchingVideos.length >= 3) {
+      // Shuffle array and take first 3
+      const shuffled = [...matchingVideos].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 3);
+    }
+    
+    // If less than 3, return all available
+    return matchingVideos;
   }, [links, workoutMinutes]);
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);

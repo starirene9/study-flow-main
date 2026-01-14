@@ -55,6 +55,7 @@ export const DEFAULT_YOUTUBE_LINKS: Omit<YoutubeLink, 'id' | 'createdAt'>[] = [
     url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
     isActive: false,
   },
+  // 10 minute workouts (3 videos)
   {
     title: '10 Min Desk Stretch',
     url: 'https://www.youtube.com/watch?v=tAUf7aajBWE',
@@ -66,18 +67,45 @@ export const DEFAULT_YOUTUBE_LINKS: Omit<YoutubeLink, 'id' | 'createdAt'>[] = [
     isActive: false,
   },
   {
+    title: '10 Min Full Body Workout',
+    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    isActive: false,
+  },
+  {
     title: '12 Min Neck & Shoulder Relief',
     url: 'https://www.youtube.com/watch?v=SedzswEwpPw',
     isActive: false,
   },
+  // 15 minute workouts (3 videos)
   {
     title: '15 Min Full Body Mobility',
     url: 'https://www.youtube.com/watch?v=Yzm3fA2HhkQ',
     isActive: false,
   },
   {
+    title: '15 Min HIIT Workout',
+    url: 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+    isActive: false,
+  },
+  {
+    title: '15 Min Yoga Flow',
+    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    isActive: false,
+  },
+  // 20 minute workouts (3 videos)
+  {
     title: '20 Min Yoga Flow',
     url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    isActive: false,
+  },
+  {
+    title: '20 Min Cardio Workout',
+    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    isActive: false,
+  },
+  {
+    title: '20 Min Strength Training',
+    url: 'https://www.youtube.com/watch?v=Yzm3fA2HhkQ',
     isActive: false,
   },
   {
