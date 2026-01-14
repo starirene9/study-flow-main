@@ -191,23 +191,18 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   };
   
   const handleActivate = async (id: string) => {
-    if (isProcessing) return;
     const currentLink = links.find(l => l.id === id);
     if (currentLink?.isActive) {
       // Already active, no need to do anything
       return;
     }
     
-    setIsProcessing(true);
-    try {
-      console.log('Activating video:', id);
-      await onActivate(id);
-      console.log('Video activated successfully');
-    } catch (error) {
+    // Optimistically update UI immediately without showing disabled state
+    // Call onActivate in background without blocking UI
+    onActivate(id).catch((error) => {
       console.error('Error activating video:', error);
-    } finally {
-      setIsProcessing(false);
-    }
+      // Optionally show error toast here if needed
+    });
   };
   
   return (
@@ -331,7 +326,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
                   link.isActive
                     ? 'border-workout bg-workout text-workout-foreground'
                     : 'border-muted-foreground/30 hover:border-workout',
-                  isProcessing && 'opacity-50 cursor-not-allowed'
                 )}
               >
                 {link.isActive && <Check className="w-3 h-3" />}
