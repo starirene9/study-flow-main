@@ -34,33 +34,58 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
 
   // Filter links to show videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
-    // Find all videos that match workout duration exactly
-    const matchingVideos = links.filter((link) => {
+    console.log('Filtering links:', { 
+      totalLinks: links.length, 
+      workoutMinutes,
+      links: links.map(l => ({ title: l.title, url: l.url, isDefault: defaultVideoUrls.has(l.url) }))
+    });
+    
+    // Separate user-added videos from default videos first
+    const userAddedVideos = links.filter(
+      (link) => !defaultVideoUrls.has(link.url)
+    );
+    const defaultVideos = links.filter(
+      (link) => defaultVideoUrls.has(link.url)
+    );
+    
+    console.log('Separated:', { 
+      userAdded: userAddedVideos.length, 
+      default: defaultVideos.length 
+    });
+    
+    // Filter default videos by duration (must match exactly)
+    const matchingDefaultVideos = defaultVideos.filter((link) => {
       const videoDuration = extractDurationFromTitle(link.title);
       return videoDuration === workoutMinutes;
     });
     
-    // Separate user-added videos from default videos
-    const userAddedVideos = matchingVideos.filter(
-      (link) => !defaultVideoUrls.has(link.url)
-    );
-    const defaultVideos = matchingVideos.filter(
-      (link) => defaultVideoUrls.has(link.url)
-    );
+    // For user-added videos, check duration but be more lenient
+    // If duration matches, include it. If no duration found, still include it.
+    const matchingUserVideos = userAddedVideos.filter((link) => {
+      const videoDuration = extractDurationFromTitle(link.title);
+      // Include if duration matches OR if no duration found (user might not have included it)
+      return videoDuration === null || videoDuration === workoutMinutes;
+    });
     
-    // If user has added videos, show all user-added videos only
-    if (userAddedVideos.length > 0) {
-      return userAddedVideos;
+    console.log('After duration filter:', { 
+      matchingUser: matchingUserVideos.length,
+      matchingDefault: matchingDefaultVideos.length,
+      userVideos: matchingUserVideos.map(v => ({ title: v.title, duration: extractDurationFromTitle(v.title) }))
+    });
+    
+    // If user has added videos, show all matching user-added videos
+    if (matchingUserVideos.length > 0) {
+      return matchingUserVideos;
     }
     
     // If no user-added videos, show up to 3 random default videos
-    if (defaultVideos.length >= 3) {
-      const shuffled = [...defaultVideos].sort(() => Math.random() - 0.5);
+    if (matchingDefaultVideos.length >= 3) {
+      const shuffled = [...matchingDefaultVideos].sort(() => Math.random() - 0.5);
       return shuffled.slice(0, 3);
     }
     
     // If less than 3 default videos, return all available
-    return defaultVideos;
+    return matchingDefaultVideos;
   }, [links, workoutMinutes, defaultVideoUrls]);
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
