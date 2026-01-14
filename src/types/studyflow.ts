@@ -108,9 +108,36 @@ export const DEFAULT_YOUTUBE_LINKS: Omit<YoutubeLink, 'id' | 'createdAt'>[] = [
     url: 'https://www.youtube.com/watch?v=Yzm3fA2HhkQ',
     isActive: false,
   },
+  // 25 minute workouts (3 videos)
+  {
+    title: '25 Min Full Body HIIT',
+    url: 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+    isActive: false,
+  },
+  {
+    title: '25 Min Cardio Blast',
+    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    isActive: false,
+  },
+  {
+    title: '25 Min Strength & Cardio',
+    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    isActive: false,
+  },
+  // 30 minute workouts (3 videos)
   {
     title: '30 Min Full Body Workout',
     url: 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+    isActive: false,
+  },
+  {
+    title: '30 Min HIIT Training',
+    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    isActive: false,
+  },
+  {
+    title: '30 Min Cardio & Strength',
+    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
     isActive: false,
   },
 ];
