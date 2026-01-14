@@ -70,10 +70,15 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     if (newUrl && extractVideoId(newUrl) && !isProcessing) {
       setIsProcessing(true);
       try {
+        console.log('Adding video:', newUrl, newTitle);
         await onAdd(newUrl, newTitle || undefined);
+        console.log('Video added successfully');
+        // Clear form
         setNewUrl('');
         setNewTitle('');
         setIsAdding(false);
+        // Note: The parent component should update the links prop
+        // which will trigger filteredLinks to recalculate
       } catch (error) {
         console.error('Error adding video:', error);
       } finally {

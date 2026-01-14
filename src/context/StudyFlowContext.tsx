@@ -22,6 +22,7 @@ import {
   deleteYoutubeLink as deleteLinkStorage,
   getRandomVideo,
 } from '@/lib/storage';
+import { DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
 
 interface StudyFlowContextType {
   // Settings
@@ -128,9 +129,26 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   
   // YouTube Link management
   const addYoutubeLink = useCallback(async (url: string, title?: string) => {
-    await addLinkStorage(url, title);
-    const updatedLinks = await getYoutubeLinks();
-    setYoutubeLinks(updatedLinks);
+    try {
+      console.log('Context: Adding video', url, title);
+      const newLink = await addLinkStorage(url, title);
+      console.log('Context: Video added to storage', newLink);
+      
+      // Small delay to ensure database update is complete
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Force refresh links from storage
+      const updatedLinks = await getYoutubeLinks();
+      console.log('Context: Fetched updated links', updatedLinks.map(l => ({ id: l.id, title: l.title, isUserAdded: !DEFAULT_YOUTUBE_LINKS.some(d => d.url === l.url) })));
+      
+      // Create new array reference to trigger re-render
+      setYoutubeLinks([...updatedLinks]);
+    } catch (error) {
+      console.error('Error in addYoutubeLink:', error);
+      // Still try to refresh
+      const updatedLinks = await getYoutubeLinks();
+      setYoutubeLinks([...updatedLinks]);
+    }
   }, []);
   
   const deleteYoutubeLink = useCallback(async (id: string) => {
