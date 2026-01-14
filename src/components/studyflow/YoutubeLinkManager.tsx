@@ -3,7 +3,7 @@ import { Plus, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { YoutubeLink } from '@/types/studyflow';
+import { YoutubeLink, DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
 import { extractVideoId } from '@/lib/storage';
 
 // Extract duration from video title (e.g., "10 Min", "15min", "20 minute")
@@ -27,7 +27,12 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
 }) => {
   const [newUrl, setNewUrl] = useState('');
   
-  // Filter links to show 3 random videos that match workout duration exactly
+  // Get default video URLs for comparison
+  const defaultVideoUrls = useMemo(() => {
+    return new Set(DEFAULT_YOUTUBE_LINKS.map(link => link.url));
+  }, []);
+
+  // Filter links to show videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
     // Find all videos that match workout duration exactly
     const matchingVideos = links.filter((link) => {
@@ -35,16 +40,28 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       return videoDuration === workoutMinutes;
     });
     
-    // If we have 3 or more videos, randomly select 3
-    if (matchingVideos.length >= 3) {
-      // Shuffle array and take first 3
-      const shuffled = [...matchingVideos].sort(() => Math.random() - 0.5);
+    // Separate user-added videos from default videos
+    const userAddedVideos = matchingVideos.filter(
+      (link) => !defaultVideoUrls.has(link.url)
+    );
+    const defaultVideos = matchingVideos.filter(
+      (link) => defaultVideoUrls.has(link.url)
+    );
+    
+    // If user has added videos, show all user-added videos only
+    if (userAddedVideos.length > 0) {
+      return userAddedVideos;
+    }
+    
+    // If no user-added videos, show up to 3 random default videos
+    if (defaultVideos.length >= 3) {
+      const shuffled = [...defaultVideos].sort(() => Math.random() - 0.5);
       return shuffled.slice(0, 3);
     }
     
-    // If less than 3, return all available
-    return matchingVideos;
-  }, [links, workoutMinutes]);
+    // If less than 3 default videos, return all available
+    return defaultVideos;
+  }, [links, workoutMinutes, defaultVideoUrls]);
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -136,9 +153,10 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
             <p className="text-xs">Please add {workoutMinutes} min workout videos (recommended: 3 different videos).</p>
           </div>
         )}
-        {filteredLinks.length > 0 && filteredLinks.length < 3 && (
+        {filteredLinks.length > 0 && filteredLinks.length < 3 && 
+         filteredLinks.every(link => !defaultVideoUrls.has(link.url)) && (
           <div className="text-xs text-muted-foreground text-center py-2 bg-muted/50 rounded-lg">
-            <p>Showing {filteredLinks.length} of {workoutMinutes} min videos. Add more for variety!</p>
+            <p>Showing {filteredLinks.length} custom {workoutMinutes} min video(s). Add more for variety!</p>
           </div>
         )}
         {filteredLinks.map((link) => (
