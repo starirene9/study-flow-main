@@ -50,7 +50,8 @@ interface StudyFlowContextType {
   
   // Session Logs
   todayLogs: SessionLog[];
-  getDailySummary: (date?: string) => DailySummary;
+  getDailySummary: (date?: string) => Promise<DailySummary>;
+  isLoading: boolean;
 }
 
 const StudyFlowContext = createContext<StudyFlowContextType | null>(null);
@@ -68,8 +69,13 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const location = useLocation();
   
   // Settings
-  const [settings, setSettings] = useState<UserSettings>(getSettings);
-  const [youtubeLinks, setYoutubeLinks] = useState<YoutubeLink[]>(getYoutubeLinks);
+  const [settings, setSettings] = useState<UserSettings>({
+    focusMinutes: 60,
+    workoutMinutes: 20,
+    activeYoutubeUrl: null,
+  });
+  const [youtubeLinks, setYoutubeLinks] = useState<YoutubeLink[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Session State
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>('idle');
@@ -83,7 +89,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Session Logs
-  const [todayLogs, setTodayLogs] = useState<SessionLog[]>(() => getSessionLogs(getTodayDate()));
+  const [todayLogs, setTodayLogs] = useState<SessionLog[]>([]);
   
   // Current workout video (randomly selected each workout session)
   const [currentWorkoutVideo, setCurrentWorkoutVideo] = useState<YoutubeLink | null>(null);
@@ -91,36 +97,62 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Get active YouTube link (for display purposes)
   const activeLink = youtubeLinks.find((link) => link.isActive) || null;
   
-  // Update settings
-  const updateSettings = useCallback((newSettings: Partial<UserSettings>) => {
-    setSettings((prev) => {
-      const updated = { ...prev, ...newSettings };
-      saveSettings(updated);
-      return updated;
-    });
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setIsLoading(true);
+        const [loadedSettings, loadedLinks, loadedLogs] = await Promise.all([
+          getSettings(),
+          getYoutubeLinks(),
+          getSessionLogs(getTodayDate()),
+        ]);
+        setSettings(loadedSettings);
+        setYoutubeLinks(loadedLinks);
+        setTodayLogs(loadedLogs);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitialData();
   }, []);
+  
+  // Update settings
+  const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
+    const updated = { ...settings, ...newSettings };
+    setSettings(updated);
+    await saveSettings(updated);
+  }, [settings]);
   
   // YouTube Link management
-  const addYoutubeLink = useCallback((url: string, title?: string) => {
-    addLinkStorage(url, title);
-    setYoutubeLinks(getYoutubeLinks());
+  const addYoutubeLink = useCallback(async (url: string, title?: string) => {
+    await addLinkStorage(url, title);
+    const updatedLinks = await getYoutubeLinks();
+    setYoutubeLinks(updatedLinks);
   }, []);
   
-  const deleteYoutubeLink = useCallback((id: string) => {
-    deleteLinkStorage(id);
-    setYoutubeLinks(getYoutubeLinks());
+  const deleteYoutubeLink = useCallback(async (id: string) => {
+    await deleteLinkStorage(id);
+    const updatedLinks = await getYoutubeLinks();
+    setYoutubeLinks(updatedLinks);
   }, []);
   
-  const activateYoutubeLink = useCallback((id: string) => {
-    activateLinkStorage(id);
-    setYoutubeLinks(getYoutubeLinks());
-    setSettings(getSettings());
+  const activateYoutubeLink = useCallback(async (id: string) => {
+    await activateLinkStorage(id);
+    const [updatedLinks, updatedSettings] = await Promise.all([
+      getYoutubeLinks(),
+      getSettings(),
+    ]);
+    setYoutubeLinks(updatedLinks);
+    setSettings(updatedSettings);
   }, []);
   
   // Log session completion
-  const logSession = useCallback((type: SessionType, startTime: Date, endTime: Date, videoUrl?: string) => {
+  const logSession = useCallback(async (type: SessionType, startTime: Date, endTime: Date, videoUrl?: string) => {
     const durationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / 60000);
-    const log = saveSessionLog({
+    const log = await saveSessionLog({
       sessionDate: getTodayDate(),
       type,
       startTime,
@@ -129,19 +161,22 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       youtubeUrl: type === 'WORKOUT' ? videoUrl : undefined,
     });
     setTodayLogs((prev) => [...prev, log]);
+    // Refresh today's logs
+    const updatedLogs = await getSessionLogs(getTodayDate());
+    setTodayLogs(updatedLogs);
   }, []);
   
   // Session transition
-  const transitionToNextSession = useCallback(() => {
+  const transitionToNextSession = useCallback(async () => {
     if (!sessionStartRef.current) return;
     
     const endTime = new Date();
     
     if (currentSessionType === 'FOCUS') {
-      logSession('FOCUS', sessionStartRef.current, endTime);
+      await logSession('FOCUS', sessionStartRef.current, endTime);
       
       // Move to workout - select random video
-      const randomVideo = getRandomVideo(settings.workoutMinutes);
+      const randomVideo = await getRandomVideo(settings.workoutMinutes);
       setCurrentWorkoutVideo(randomVideo);
       
       setCurrentSessionType('WORKOUT');
@@ -152,7 +187,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       navigate('/workout');
     } else {
       // Log workout with the video that was used
-      logSession('WORKOUT', sessionStartRef.current, endTime, currentWorkoutVideo?.url);
+      await logSession('WORKOUT', sessionStartRef.current, endTime, currentWorkoutVideo?.url);
       
       // Move to focus (next cycle)
       setCycleCount((prev) => prev + 1);
@@ -207,7 +242,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setSessionStatus('running');
   }, []);
   
-  const stopSession = useCallback(() => {
+  const stopSession = useCallback(async () => {
     // Log partial session
     if (sessionStartRef.current) {
       const endTime = new Date();
@@ -218,7 +253,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       // Only log if significant time passed (at least 1 minute)
       if (elapsed >= 60) {
-        logSession(currentSessionType, sessionStartRef.current, endTime);
+        await logSession(currentSessionType, sessionStartRef.current, endTime);
       }
     }
     
@@ -229,9 +264,9 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [currentSessionType, settings, logSession, navigate]);
   
   // Calculate daily summary
-  const getDailySummary = useCallback((date?: string): DailySummary => {
+  const getDailySummary = useCallback(async (date?: string): Promise<DailySummary> => {
     const targetDate = date || getTodayDate();
-    const logs = date ? getSessionLogs(date) : todayLogs;
+    const logs = date ? await getSessionLogs(date) : todayLogs;
     
     let totalFocusMinutes = 0;
     let totalWorkoutMinutes = 0;
@@ -301,12 +336,13 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   
   // Refresh today's logs when date changes
   useEffect(() => {
-    const checkDate = () => {
+    const checkDate = async () => {
       const today = getTodayDate();
-      const currentLogs = getSessionLogs(today);
+      const currentLogs = await getSessionLogs(today);
       setTodayLogs(currentLogs);
     };
     
+    checkDate();
     const interval = setInterval(checkDate, 60000);
     return () => clearInterval(interval);
   }, []);
@@ -333,6 +369,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         stopSession,
         todayLogs,
         getDailySummary,
+        isLoading,
       }}
     >
       {children}

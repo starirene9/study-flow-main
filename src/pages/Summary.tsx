@@ -1,15 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Brain, Dumbbell, Trophy, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStudyFlow } from '@/context/StudyFlowContext';
 import HourlyTimelineGrid from '@/components/studyflow/HourlyTimelineGrid';
+import type { DailySummary } from '@/types/studyflow';
 
 const Summary = () => {
   const navigate = useNavigate();
   const { getDailySummary } = useStudyFlow();
   
-  const summary = getDailySummary();
+  const [summary, setSummary] = useState<DailySummary>({
+    date: '',
+    totalFocusMinutes: 0,
+    totalWorkoutMinutes: 0,
+    completedCycles: 0,
+    isSuccess: false,
+    hourlyBuckets: [],
+  });
+
+  useEffect(() => {
+    const loadSummary = async () => {
+      const data = await getDailySummary();
+      setSummary(data);
+    };
+    loadSummary();
+  }, [getDailySummary]);
   
   const formatTime = (minutes: number) => {
     const hrs = Math.floor(minutes / 60);

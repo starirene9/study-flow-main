@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Brain, Dumbbell, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import SliderTimePicker from '@/components/studyflow/SliderTimePicker';
 import YoutubeLinkManager from '@/components/studyflow/YoutubeLinkManager';
 import TodayMiniSummary from '@/components/studyflow/TodayMiniSummary';
 import { FOCUS_PRESETS, WORKOUT_PRESETS } from '@/types/studyflow';
+import type { DailySummary } from '@/types/studyflow';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -23,7 +24,23 @@ const Index = () => {
     getDailySummary,
   } = useStudyFlow();
   
-  const summary = getDailySummary();
+  const [summary, setSummary] = useState<DailySummary>({
+    date: '',
+    totalFocusMinutes: 0,
+    totalWorkoutMinutes: 0,
+    completedCycles: 0,
+    isSuccess: false,
+    hourlyBuckets: [],
+  });
+
+  useEffect(() => {
+    const loadSummary = async () => {
+      const data = await getDailySummary();
+      setSummary(data);
+    };
+    loadSummary();
+  }, [getDailySummary]);
+
   const hasActiveVideo = !!activeLink;
   
   return (

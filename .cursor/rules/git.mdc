@@ -5,10 +5,12 @@ alwaysApply: true
 # 🔧 Git & Commit Rules
 
 ## Auto-commit expectation
+
 - After each AI-generated change, immediately stage and commit.
 - Keep working tree clean; avoid uncommitted state between AI steps.
 
 ## Commit message style
+
 - Language: English, concise, feature-focused.
 - Format: `<type>: <short summary>` (lowercase type).
 - Recommended types: `feat`, `fix`, `chore`, `docs`, `refactor`, `style`, `test`.
@@ -19,10 +21,12 @@ alwaysApply: true
   - `chore: update cursor rule files`
 
 ## What to avoid
+
 - ❌ No ticket IDs unless provided.
 - ❌ No verbose or multi-sentence subjects.
 - ❌ No non-English text.
 
 ## When to skip auto-commit
+
 - Skip only if user explicitly says “don’t commit” for a change.
 - Otherwise, commit every AI-applied change batch.
