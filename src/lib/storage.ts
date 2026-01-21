@@ -116,7 +116,15 @@ export const saveSettingsLocal = (settings: UserSettings): void => {
 
 // YouTube Links
 export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
+  // 기본 링크는 항상 메모리에서 생성 (Supabase에 저장하지 않음)
+  const defaultLinks: YoutubeLink[] = DEFAULT_YOUTUBE_LINKS.map((link) => ({
+    ...link,
+    id: `default-${link.url}`, // 기본 링크는 URL 기반 고정 ID 사용
+    createdAt: new Date(0), // 기본 링크는 오래된 날짜로 설정
+  }));
+
   try {
+    // Supabase에서 사용자가 추가한 링크만 가져오기
     const { data, error } = await supabase
       .from("youtube_links")
       .select("*")
@@ -125,31 +133,38 @@ export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
 
     if (error) {
       console.error('Error fetching YouTube links from Supabase:', error);
-      return getYoutubeLinksLocal();
+      // 에러 발생 시 기본 링크만 반환
+      return defaultLinks;
     }
 
-    if (data && data.length > 0) {
-      return data.map((link) => ({
-        id: link.id,
-        title: link.title,
-        url: link.url,
-        isActive: link.is_active,
-        createdAt: new Date(link.created_at || ''),
+    // 사용자가 추가한 링크를 YoutubeLink 형식으로 변환
+    const userAddedLinks: YoutubeLink[] = (data || []).map((link) => ({
+      id: link.id,
+      title: link.title,
+      url: link.url,
+      isActive: link.is_active,
+      createdAt: new Date(link.created_at || ''),
+    }));
+
+    // 기본 링크와 사용자가 추가한 링크를 합쳐서 반환
+    // 기본 링크가 먼저 오고, 그 다음 사용자가 추가한 링크가 오도록 정렬
+    const allLinks = [...defaultLinks, ...userAddedLinks];
+    
+    // 활성 링크가 있으면 그 링크만 활성으로 설정
+    const activeLink = allLinks.find(link => link.isActive);
+    if (activeLink) {
+      return allLinks.map(link => ({
+        ...link,
+        isActive: link.id === activeLink.id,
       }));
     }
+
+    return allLinks;
   } catch (error) {
     console.error('Error fetching YouTube links:', error);
-    return getYoutubeLinksLocal();
+    // 에러 발생 시 기본 링크만 반환
+    return defaultLinks;
   }
-
-  // Initialize with default links
-  const defaultLinks: YoutubeLink[] = DEFAULT_YOUTUBE_LINKS.map((link) => ({
-    ...link,
-    id: generateId(),
-    createdAt: new Date(),
-  }));
-  await saveYoutubeLinks(defaultLinks);
-  return defaultLinks;
 };
 
 export const getYoutubeLinksLocal = (): YoutubeLink[] => {
@@ -162,29 +177,38 @@ export const getYoutubeLinksLocal = (): YoutubeLink[] => {
 
 export const saveYoutubeLinks = async (links: YoutubeLink[]): Promise<void> => {
   try {
-    // Delete existing links
+    // 기본 링크와 사용자가 추가한 링크를 구분
+    // 기본 링크는 ID가 'default-'로 시작하거나 createdAt이 1970년 이전인 링크
+    const defaultLinkIds = new Set(DEFAULT_YOUTUBE_LINKS.map(link => `default-${link.url}`));
+    const userAddedLinks = links.filter(
+      link => !defaultLinkIds.has(link.id) && link.createdAt.getTime() > 0
+    );
+
+    // 기존 사용자 추가 링크 삭제
     await supabase
       .from("youtube_links")
       .delete()
       .eq("user_id", getUserId());
 
-    // Insert new links
-    const { error } = await supabase
-      .from("youtube_links")
-      .insert(
-        links.map((link) => ({
-          id: link.id,
-          user_id: getUserId(),
-          title: link.title,
-          url: link.url,
-          is_active: link.isActive,
-          created_at: link.createdAt.toISOString(),
-        }))
-      );
+    // 사용자가 추가한 링크만 Supabase에 저장
+    if (userAddedLinks.length > 0) {
+      const { error } = await supabase
+        .from("youtube_links")
+        .insert(
+          userAddedLinks.map((link) => ({
+            id: link.id,
+            user_id: getUserId(),
+            title: link.title,
+            url: link.url,
+            is_active: link.isActive,
+            created_at: link.createdAt.toISOString(),
+          }))
+        );
 
-    if (error) {
-      console.error('Error saving YouTube links to Supabase:', error);
-      saveYoutubeLinksLocal(links);
+      if (error) {
+        console.error('Error saving YouTube links to Supabase:', error);
+        saveYoutubeLinksLocal(links);
+      }
     }
   } catch (error) {
     console.error('Error saving YouTube links:', error);
@@ -257,60 +281,54 @@ export const deleteYoutubeLink = async (id: string): Promise<void> => {
 
 export const activateYoutubeLink = async (id: string): Promise<void> => {
   try {
-    // Update all links to set is_active to false
-    const { error: updateAllError } = await supabase
-      .from("youtube_links")
-      .update({ is_active: false })
-      .eq("user_id", getUserId());
-
-    if (updateAllError) {
-      console.error('Error deactivating all links:', updateAllError);
+    // 모든 링크 가져오기 (기본 링크 + 사용자 추가 링크)
+    const allLinks = await getYoutubeLinks();
+    const linkToActivate = allLinks.find(link => link.id === id);
+    
+    if (!linkToActivate) {
+      console.error('Link not found:', id);
+      return;
     }
 
-    // Update the selected link to active
-    const { error: updateError, data: updateData } = await supabase
-      .from("youtube_links")
-      .update({ is_active: true, updated_at: new Date().toISOString() })
-      .eq("id", id)
-      .eq("user_id", getUserId())
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Error activating YouTube link:', updateError);
-      throw updateError;
-    }
-
-    // Get active link and update settings
-    if (updateData) {
-      const settings = await getSettings();
-      settings.activeYoutubeUrl = updateData.url;
-      await saveSettings(settings);
-    } else {
-      // Fallback: get the link data
-      const { data } = await supabase
+    // 사용자가 추가한 링크인지 확인 (기본 링크는 ID가 'default-'로 시작)
+    const isDefaultLink = id.startsWith('default-');
+    
+    if (!isDefaultLink) {
+      // 사용자가 추가한 링크인 경우 Supabase에서 업데이트
+      // 모든 사용자 추가 링크를 비활성화
+      const { error: updateAllError } = await supabase
         .from("youtube_links")
-        .select("url")
+        .update({ is_active: false })
+        .eq("user_id", getUserId());
+
+      if (updateAllError) {
+        console.error('Error deactivating all links:', updateAllError);
+      }
+
+      // 선택한 링크를 활성화
+      const { error: updateError, data: updateData } = await supabase
+        .from("youtube_links")
+        .update({ is_active: true, updated_at: new Date().toISOString() })
         .eq("id", id)
+        .eq("user_id", getUserId())
+        .select()
         .single();
 
-      if (data) {
-        const settings = await getSettings();
-        settings.activeYoutubeUrl = data.url;
-        await saveSettings(settings);
+      if (updateError) {
+        console.error('Error activating YouTube link:', updateError);
+        throw updateError;
       }
     }
+
+    // 설정에 활성 링크 URL 저장 (기본 링크든 사용자 추가 링크든 상관없이)
+    const settings = await getSettings();
+    settings.activeYoutubeUrl = linkToActivate.url;
+    await saveSettings(settings);
   } catch (error) {
     console.error('Error activating YouTube link:', error);
-    // Fallback to local storage approach
+    // Fallback: 링크 목록을 가져와서 활성 링크만 설정
     const links = await getYoutubeLinks();
-    const updated = links.map((link) => ({
-      ...link,
-      isActive: link.id === id,
-    }));
-    await saveYoutubeLinks(updated);
-    
-    const activeLink = updated.find((l) => l.id === id);
+    const activeLink = links.find((l) => l.id === id);
     if (activeLink) {
       const settings = await getSettings();
       settings.activeYoutubeUrl = activeLink.url;

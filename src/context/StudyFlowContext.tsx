@@ -21,8 +21,10 @@ import {
   addYoutubeLink as addLinkStorage,
   deleteYoutubeLink as deleteLinkStorage,
   getRandomVideo,
+  setCurrentUserId,
 } from '@/lib/storage';
 import { DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
+import { useAuth } from '@/context/AuthContext';
 
 interface StudyFlowContextType {
   // Settings
@@ -68,6 +70,7 @@ export const useStudyFlow = () => {
 export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   
   // Settings
   const [settings, setSettings] = useState<UserSettings>({
@@ -98,11 +101,29 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Get active YouTube link (for display purposes)
   const activeLink = youtubeLinks.find((link) => link.isActive) || null;
   
-  // Load initial data
+  // 사용자 ID 동기화
+  useEffect(() => {
+    if (user) {
+      setCurrentUserId(user.id);
+    } else {
+      setCurrentUserId(null);
+    }
+  }, [user]);
+  
+  // Load initial data - 사용자 변경 시마다 다시 로드
   useEffect(() => {
     const loadInitialData = async () => {
+      // 사용자가 없으면 로딩하지 않음
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+      
       try {
         setIsLoading(true);
+        // 사용자 ID 설정
+        setCurrentUserId(user.id);
+        
         const [loadedSettings, loadedLinks, loadedLogs] = await Promise.all([
           getSettings(),
           getYoutubeLinks(),
@@ -118,7 +139,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
     loadInitialData();
-  }, []);
+  }, [user?.id]); // 사용자 ID가 변경될 때마다 다시 로드
   
   // Update settings
   const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
