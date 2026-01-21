@@ -67,7 +67,17 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold">StudyFlow</h1>
-                <p className="text-xs text-muted-foreground">Focus. Move. Repeat.</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">Focus. Move. Repeat.</p>
+                  {user?.email && (
+                    <>
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <p className="text-xs font-medium text-primary">
+                        {user.email}
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
