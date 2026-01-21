@@ -13,6 +13,9 @@ const ThemeToggle: React.FC = () => {
     setMounted(true);
   }, []);
 
+  // 현재 테마에 따라 반대 모드의 이름을 표시
+  const tooltipText = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
   if (!mounted) {
     return (
       <Tooltip>
@@ -46,7 +49,7 @@ const ThemeToggle: React.FC = () => {
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>Dark Mode</p>
+        <p>{tooltipText}</p>
       </TooltipContent>
     </Tooltip>
   );
