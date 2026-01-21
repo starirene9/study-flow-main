@@ -1,10 +1,28 @@
 export type SessionType = 'FOCUS' | 'WORKOUT';
 export type SessionStatus = 'idle' | 'running' | 'paused' | 'stopped';
 
+export type PrimaryColorTheme = 'blue' | 'red' | 'green' | 'purple' | 'orange';
+
+export interface ColorThemeConfig {
+  hue: number;
+  saturation: number;
+  lightness: number;
+  name: string;
+}
+
+export const COLOR_THEMES: Record<PrimaryColorTheme, ColorThemeConfig> = {
+  blue: { hue: 220, saturation: 70, lightness: 50, name: 'Blue' },
+  red: { hue: 0, saturation: 75, lightness: 50, name: 'Red' },
+  green: { hue: 142, saturation: 70, lightness: 45, name: 'Green' },
+  purple: { hue: 270, saturation: 70, lightness: 50, name: 'Purple' },
+  orange: { hue: 25, saturation: 95, lightness: 50, name: 'Orange' },
+};
+
 export interface UserSettings {
   focusMinutes: number;
   workoutMinutes: number;
   activeYoutubeUrl: string | null;
+  primaryColorTheme?: PrimaryColorTheme;
 }
 
 export interface YoutubeLink {

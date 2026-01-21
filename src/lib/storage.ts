@@ -47,10 +47,13 @@ export const getSettings = async (): Promise<UserSettings> => {
     }
 
     if (data) {
+      // Supabase에서 가져온 설정과 localStorage의 색상 테마 병합
+      const localSettings = getSettingsLocal();
       return {
         focusMinutes: data.focus_minutes,
         workoutMinutes: data.workout_minutes,
         activeYoutubeUrl: data.active_youtube_url,
+        primaryColorTheme: localSettings.primaryColorTheme || 'blue',
       };
     }
   } catch (error) {
@@ -63,6 +66,7 @@ export const getSettings = async (): Promise<UserSettings> => {
     focusMinutes: IS_TEST_MODE ? 1 : 60,
     workoutMinutes: IS_TEST_MODE ? 1 : 20,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
+    primaryColorTheme: 'blue' as const,
   };
   
   // Save default to Supabase
@@ -79,10 +83,14 @@ export const getSettingsLocal = (): UserSettings => {
     focusMinutes: IS_TEST_MODE ? 1 : 60,
     workoutMinutes: IS_TEST_MODE ? 1 : 20,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
+    primaryColorTheme: 'blue' as const,
   };
 };
 
 export const saveSettings = async (settings: UserSettings): Promise<void> => {
+  // 색상 테마는 localStorage에만 저장 (Supabase 스키마에 없을 수 있음)
+  saveSettingsLocal(settings);
+  
   try {
     const { error } = await supabase
       .from("user_settings")
@@ -101,12 +109,9 @@ export const saveSettings = async (settings: UserSettings): Promise<void> => {
 
     if (error) {
       console.error('Error saving settings to Supabase:', error);
-      // Fallback to localStorage
-      saveSettingsLocal(settings);
     }
   } catch (error) {
     console.error('Error saving settings:', error);
-    saveSettingsLocal(settings);
   }
 };
 

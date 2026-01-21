@@ -1,6 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 import { useStudyFlow } from '@/context/StudyFlowContext';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { PrimaryColorTheme, COLOR_THEMES } from '@/types/studyflow';
+import { applyColorTheme } from '@/lib/colorTheme';
 import SessionHeader from '@/components/studyflow/SessionHeader';
 import TimerDisplay from '@/components/studyflow/TimerDisplay';
 import ProgressRing from '@/components/studyflow/ProgressRing';
@@ -9,6 +15,8 @@ import SessionControls from '@/components/studyflow/SessionControls';
 const Focus = () => {
   const navigate = useNavigate();
   const {
+    settings,
+    updateSettings,
     sessionStatus,
     currentSessionType,
     cycleCount,
@@ -18,6 +26,9 @@ const Focus = () => {
     resumeSession,
     stopSession,
   } = useStudyFlow();
+  
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const currentTheme = settings.primaryColorTheme || 'blue';
   
   // Redirect if not in active session
   useEffect(() => {
@@ -33,12 +44,90 @@ const Focus = () => {
     }
   }, [currentSessionType, sessionStatus, navigate]);
   
+  // 색상 테마 적용
+  useEffect(() => {
+    applyColorTheme(currentTheme);
+  }, [currentTheme]);
+  
+  const handleColorChange = (theme: PrimaryColorTheme) => {
+    updateSettings({ primaryColorTheme: theme });
+    applyColorTheme(theme);
+    setIsColorPickerOpen(false);
+  };
+  
   const progress = totalTime > 0 ? ((totalTime - timeRemaining) / totalTime) * 100 : 0;
   
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Background gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-primary-soft via-background to-background pointer-events-none" />
+      
+      {/* Settings Button */}
+      <div className="absolute top-4 right-4 z-10">
+        <Popover open={isColorPickerOpen} onOpenChange={setIsColorPickerOpen}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                >
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Settings</p>
+            </TooltipContent>
+          </Tooltip>
+          <PopoverContent className="w-64" align="end">
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-sm">Color Theme</h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Choose your preferred focus color
+                </p>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {(Object.keys(COLOR_THEMES) as PrimaryColorTheme[]).map((theme) => {
+                  const config = COLOR_THEMES[theme];
+                  const isSelected = currentTheme === theme;
+                  return (
+                    <button
+                      key={theme}
+                      onClick={() => handleColorChange(theme)}
+                      className={`
+                        relative w-12 h-12 rounded-full border-2 transition-all cursor-pointer
+                        ${isSelected 
+                          ? 'border-foreground scale-110 ring-2 ring-primary ring-offset-2 shadow-md' 
+                          : 'border-border hover:border-foreground/50 hover:scale-105 hover:shadow-sm'
+                        }
+                      `}
+                      style={{
+                        backgroundColor: `hsl(${config.hue} ${config.saturation}% ${config.lightness}%)`,
+                      }}
+                      title={config.name}
+                      aria-label={`Select ${config.name} theme`}
+                    >
+                      {isSelected && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground text-center">
+                  Selected: <span className="font-medium text-foreground">{COLOR_THEMES[currentTheme].name}</span>
+                </p>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       
       <main className="relative flex-1 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm flex flex-col items-center gap-8 animate-scale-in">
