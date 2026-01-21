@@ -1,4 +1,4 @@
-import { UserSettings, YoutubeLink, SessionLog, DEFAULT_YOUTUBE_LINKS } from "@/types/studyflow";
+import { UserSettings, YoutubeLink, SessionLog, DEFAULT_YOUTUBE_LINKS, IS_TEST_MODE } from "@/types/studyflow";
 import { supabase } from "./supabase";
 
 const STORAGE_KEYS = {
@@ -58,10 +58,10 @@ export const getSettings = async (): Promise<UserSettings> => {
     return getSettingsLocal();
   }
 
-  // Default settings
+  // Default settings (테스트 모드일 때 1분, 일반 모드일 때 60분/20분)
   const defaultSettings = {
-    focusMinutes: 60,
-    workoutMinutes: 20,
+    focusMinutes: IS_TEST_MODE ? 1 : 60,
+    workoutMinutes: IS_TEST_MODE ? 1 : 20,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
   };
   
@@ -76,8 +76,8 @@ export const getSettingsLocal = (): UserSettings => {
     return JSON.parse(stored);
   }
   return {
-    focusMinutes: 60,
-    workoutMinutes: 20,
+    focusMinutes: IS_TEST_MODE ? 1 : 60,
+    workoutMinutes: IS_TEST_MODE ? 1 : 20,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
   };
 };

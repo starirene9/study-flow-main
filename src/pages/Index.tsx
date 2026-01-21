@@ -10,12 +10,20 @@ import SliderTimePicker from '@/components/studyflow/SliderTimePicker';
 import YoutubeLinkManager from '@/components/studyflow/YoutubeLinkManager';
 import TodayMiniSummary from '@/components/studyflow/TodayMiniSummary';
 import ThemeToggle from '@/components/ThemeToggle';
-import { FOCUS_PRESETS, WORKOUT_PRESETS } from '@/types/studyflow';
+import { FOCUS_PRESETS, WORKOUT_PRESETS, FOCUS_PRESETS_TEST, WORKOUT_PRESETS_TEST, IS_TEST_MODE } from '@/types/studyflow';
 import type { DailySummary } from '@/types/studyflow';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  
+  // 테스트 모드에 따라 프리셋과 최소값 선택
+  const focusPresets = IS_TEST_MODE ? FOCUS_PRESETS_TEST : FOCUS_PRESETS;
+  const workoutPresets = IS_TEST_MODE ? WORKOUT_PRESETS_TEST : WORKOUT_PRESETS;
+  const focusMin = IS_TEST_MODE ? 1 : 30;
+  const workoutMin = IS_TEST_MODE ? 1 : 10;
+  const focusStep = IS_TEST_MODE ? 1 : 5;
+  const workoutStep = IS_TEST_MODE ? 1 : 5;
   const {
     settings,
     updateSettings,
@@ -128,13 +136,18 @@ const Index = () => {
           <div className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-semibold">Focus Time</h2>
+            {IS_TEST_MODE && (
+              <span className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-full font-medium">
+                TEST MODE
+              </span>
+            )}
           </div>
           
           <div className="glass-card rounded-xl p-5 space-y-5">
             <SliderTimePicker
-              min={30}
+              min={focusMin}
               max={90}
-              step={5}
+              step={focusStep}
               value={settings.focusMinutes}
               onChange={(value) => updateSettings({ focusMinutes: value })}
               variant="focus"
@@ -144,7 +157,7 @@ const Index = () => {
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Quick Select</p>
               <TimePresetButtons
-                options={FOCUS_PRESETS}
+                options={focusPresets}
                 selected={settings.focusMinutes}
                 onSelect={(value) => updateSettings({ focusMinutes: value })}
                 variant="focus"
@@ -162,9 +175,9 @@ const Index = () => {
           
           <div className="glass-card rounded-xl p-5 space-y-5">
             <SliderTimePicker
-              min={10}
+              min={workoutMin}
               max={30}
-              step={5}
+              step={workoutStep}
               value={settings.workoutMinutes}
               onChange={(value) => updateSettings({ workoutMinutes: value })}
               variant="workout"
@@ -174,7 +187,7 @@ const Index = () => {
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Quick Select</p>
               <TimePresetButtons
-                options={WORKOUT_PRESETS}
+                options={workoutPresets}
                 selected={settings.workoutMinutes}
                 onSelect={(value) => updateSettings({ workoutMinutes: value })}
                 variant="workout"
