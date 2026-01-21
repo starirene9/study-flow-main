@@ -5,6 +5,7 @@ import { useStudyFlow } from '@/context/StudyFlowContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PrimaryColorTheme, COLOR_THEMES } from '@/types/studyflow';
@@ -87,6 +88,10 @@ const Focus = () => {
   const handleMessageChange = (message: string) => {
     setCustomMessage(message);
     updateSettings({ customFocusMessage: message });
+  };
+  
+  const handleSoundToggle = (enabled: boolean) => {
+    updateSettings({ soundEnabled: enabled });
   };
   
   const displayMessage = sessionStatus === 'paused' 
@@ -182,6 +187,25 @@ const Focus = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   {customMessage.length}/50 characters
                 </p>
+              </div>
+              
+              {/* Sound Settings Section */}
+              <div className="pt-3 border-t">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="sound-toggle" className="text-sm font-medium">
+                      Sound Notification
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Play beep sound when session completes
+                    </p>
+                  </div>
+                  <Switch
+                    id="sound-toggle"
+                    checked={settings.soundEnabled !== false}
+                    onCheckedChange={handleSoundToggle}
+                  />
+                </div>
               </div>
             </div>
           </PopoverContent>

@@ -55,6 +55,7 @@ export const getSettings = async (): Promise<UserSettings> => {
         activeYoutubeUrl: data.active_youtube_url,
         primaryColorTheme: localSettings.primaryColorTheme || 'blue',
         customFocusMessage: localSettings.customFocusMessage,
+        soundEnabled: localSettings.soundEnabled !== undefined ? localSettings.soundEnabled : true,
       };
     }
   } catch (error) {
@@ -68,6 +69,7 @@ export const getSettings = async (): Promise<UserSettings> => {
     workoutMinutes: IS_TEST_MODE ? 3 : 20,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
     primaryColorTheme: 'blue' as const,
+    soundEnabled: true,
   };
   
   // Save default to Supabase
@@ -85,6 +87,7 @@ export const getSettingsLocal = (): UserSettings => {
     workoutMinutes: IS_TEST_MODE ? 3 : 20,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
     primaryColorTheme: 'blue' as const,
+    soundEnabled: true,
   };
 };
 

@@ -24,6 +24,7 @@ export interface UserSettings {
   activeYoutubeUrl: string | null;
   primaryColorTheme?: PrimaryColorTheme;
   customFocusMessage?: string;
+  soundEnabled?: boolean;
 }
 
 export interface YoutubeLink {

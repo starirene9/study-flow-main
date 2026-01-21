@@ -27,6 +27,7 @@ import {
 } from '@/lib/storage';
 import { DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
 import { useAuth } from '@/context/AuthContext';
+import { playBeepSound } from '@/lib/sound';
 
 interface StudyFlowContextType {
   // Settings
@@ -79,6 +80,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     focusMinutes: IS_TEST_MODE ? 1 : 60,
     workoutMinutes: IS_TEST_MODE ? 3 : 20,
     activeYoutubeUrl: null,
+    soundEnabled: true,
   });
   const [youtubeLinks, setYoutubeLinks] = useState<YoutubeLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -266,6 +268,11 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!sessionStartRef.current) return;
     
     const endTime = new Date();
+    
+    // Play beep sound if enabled
+    if (settings.soundEnabled !== false) {
+      playBeepSound();
+    }
     
     if (currentSessionType === 'FOCUS') {
       await logSession('FOCUS', sessionStartRef.current, endTime);
