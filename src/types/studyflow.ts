@@ -65,7 +65,7 @@ export const WORKOUT_PRESETS = [10, 15, 20, 30] as const;
 
 // 테스트 모드용 프리셋 (1분 단위 테스트)
 export const FOCUS_PRESETS_TEST = [1, 5, 10, 15, 30] as const;
-export const WORKOUT_PRESETS_TEST = [1, 5, 10, 15, 20] as const;
+export const WORKOUT_PRESETS_TEST = [3, 5, 10, 15, 20] as const;
 
 // 테스트 모드 확인 (환경 변수 또는 개발 모드)
 export const IS_TEST_MODE = import.meta.env.VITE_TEST_MODE === 'true' || import.meta.env.DEV;
@@ -79,6 +79,22 @@ export const DEFAULT_YOUTUBE_LINKS: Omit<YoutubeLink, 'id' | 'createdAt'>[] = [
   {
     title: '7 Min Full Body Stretch',
     url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
+    isActive: false,
+  },
+  // 3 minute workouts (3 videos - Shorts)
+  {
+    title: '3 Min Quick Stretch',
+    url: 'https://www.youtube.com/watch?v=4pKly2JojMw',
+    isActive: false,
+  },
+  {
+    title: '3 Min Desk Break',
+    url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
+    isActive: false,
+  },
+  {
+    title: '3 Min Energy Boost',
+    url: 'https://www.youtube.com/watch?v=tAUf7aajBWE',
     isActive: false,
   },
   // 10 minute workouts (3 videos)

@@ -156,7 +156,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   const [isAdding, setIsAdding] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const durationOptions = [10, 15, 20, 25, 30];
+  const durationOptions = [3, 10, 15, 20, 25, 30];
   
   const handleAdd = async () => {
     if (newUrl && extractVideoId(newUrl) && selectedDuration && !isProcessing) {

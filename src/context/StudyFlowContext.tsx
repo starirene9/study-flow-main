@@ -74,10 +74,10 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const location = useLocation();
   const { user } = useAuth();
   
-  // Settings (테스트 모드일 때 기본값 1분)
+  // Settings (테스트 모드일 때 기본값 1분/3분)
   const [settings, setSettings] = useState<UserSettings>({
     focusMinutes: IS_TEST_MODE ? 1 : 60,
-    workoutMinutes: IS_TEST_MODE ? 1 : 20,
+    workoutMinutes: IS_TEST_MODE ? 3 : 20,
     activeYoutubeUrl: null,
   });
   const [youtubeLinks, setYoutubeLinks] = useState<YoutubeLink[]>([]);

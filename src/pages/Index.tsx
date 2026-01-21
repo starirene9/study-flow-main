@@ -22,7 +22,7 @@ const Index = () => {
   const focusPresets = IS_TEST_MODE ? FOCUS_PRESETS_TEST : FOCUS_PRESETS;
   const workoutPresets = IS_TEST_MODE ? WORKOUT_PRESETS_TEST : WORKOUT_PRESETS;
   const focusMin = IS_TEST_MODE ? 1 : 30;
-  const workoutMin = IS_TEST_MODE ? 1 : 10;
+  const workoutMin = IS_TEST_MODE ? 3 : 10;
   const focusStep = IS_TEST_MODE ? 1 : 5;
   const workoutStep = IS_TEST_MODE ? 1 : 5;
   const {
