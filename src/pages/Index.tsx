@@ -190,6 +190,7 @@ const Index = () => {
               links={youtubeLinks}
               onAdd={addYoutubeLink}
               onActivate={activateYoutubeLink}
+              onDelete={deleteYoutubeLink}
               workoutMinutes={settings.workoutMinutes}
             />
           </div>

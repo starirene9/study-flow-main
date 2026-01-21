@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Plus, Check, ExternalLink } from 'lucide-react';
+import { Plus, Check, ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +18,7 @@ interface YoutubeLinkManagerProps {
   links: YoutubeLink[];
   onAdd: (url: string, title?: string) => Promise<void>;
   onActivate: (id: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
   workoutMinutes: number;
 }
 
@@ -25,6 +26,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   links,
   onAdd,
   onActivate,
+  onDelete,
   workoutMinutes,
 }) => {
   const [newUrl, setNewUrl] = useState('');
@@ -210,6 +212,17 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       // Optionally show error toast here if needed
     });
   };
+
+  const handleDelete = async (id: string) => {
+    // Confirm before deleting
+    if (window.confirm('Are you sure you want to delete this video?')) {
+      try {
+        await onDelete(id);
+      } catch (error) {
+        console.error('Error deleting video:', error);
+      }
+    }
+  };
   
   return (
     <div className="space-y-4">
@@ -351,6 +364,17 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
               >
                 <ExternalLink className="w-4 h-4" />
               </Button>
+              {/* Delete button - only show for user-added videos */}
+              {!defaultVideoUrls.has(link.url) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete(link.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         ))}
