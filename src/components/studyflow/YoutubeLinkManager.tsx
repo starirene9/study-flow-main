@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Plus, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,9 +34,9 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     return new Set(DEFAULT_YOUTUBE_LINKS.map(link => link.url));
   }, []);
 
-  // Store stable order for each workout duration
+  // Store stable order for each workout duration using useRef to avoid infinite loops
   // This ensures videos don't reorder when clicking
-  const [stableOrderMap, setStableOrderMap] = useState<Map<number, YoutubeLink[]>>(new Map());
+  const stableOrderMapRef = useRef<Map<number, YoutubeLink[]>>(new Map());
 
   // Filter links to show videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
@@ -81,7 +81,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     });
     
     // Check if we have a stable order for this duration
-    const existingOrder = stableOrderMap.get(workoutMinutes);
+    const existingOrder = stableOrderMapRef.current.get(workoutMinutes);
     
     // If we have an existing order and the video IDs match, use the stable order
     if (existingOrder) {
@@ -134,15 +134,21 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     // Combine default videos with user-added videos
     const combined = [...defaultVideosToShow, ...sortedUserVideos];
     
-    // Store this order for future use
-    setStableOrderMap(prev => {
-      const newMap = new Map(prev);
-      newMap.set(workoutMinutes, combined);
-      return newMap;
-    });
-    
     return combined;
-  }, [links, workoutMinutes, defaultVideoUrls, stableOrderMap]);
+  }, [links, workoutMinutes, defaultVideoUrls]);
+
+  // Store stable order in useEffect to avoid infinite loop
+  useEffect(() => {
+    if (filteredLinks.length > 0) {
+      const existingOrder = stableOrderMapRef.current.get(workoutMinutes);
+      // Only update if the order has actually changed
+      if (!existingOrder || 
+          existingOrder.length !== filteredLinks.length ||
+          existingOrder.some((v, i) => v.id !== filteredLinks[i]?.id)) {
+        stableOrderMapRef.current.set(workoutMinutes, [...filteredLinks]); // Create a copy to avoid reference issues
+      }
+    }
+  }, [filteredLinks, workoutMinutes]);
   const [newTitle, setNewTitle] = useState('');
   const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
