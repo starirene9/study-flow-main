@@ -23,6 +23,7 @@ export interface UserSettings {
   workoutMinutes: number;
   activeYoutubeUrl: string | null;
   primaryColorTheme?: PrimaryColorTheme;
+  customFocusMessage?: string;
 }
 
 export interface YoutubeLink {

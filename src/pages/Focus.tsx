@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { useStudyFlow } from '@/context/StudyFlowContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PrimaryColorTheme, COLOR_THEMES } from '@/types/studyflow';
@@ -28,6 +30,7 @@ const Focus = () => {
   } = useStudyFlow();
   
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [customMessage, setCustomMessage] = useState(settings.customFocusMessage || '');
   const currentTheme = settings.primaryColorTheme || 'blue';
   
   // Redirect if not in active session
@@ -49,11 +52,24 @@ const Focus = () => {
     applyColorTheme(currentTheme);
   }, [currentTheme]);
   
+  // 커스텀 메시지 동기화
+  useEffect(() => {
+    setCustomMessage(settings.customFocusMessage || '');
+  }, [settings.customFocusMessage]);
+  
   const handleColorChange = (theme: PrimaryColorTheme) => {
     updateSettings({ primaryColorTheme: theme });
     applyColorTheme(theme);
-    setIsColorPickerOpen(false);
   };
+  
+  const handleMessageChange = (message: string) => {
+    setCustomMessage(message);
+    updateSettings({ customFocusMessage: message });
+  };
+  
+  const displayMessage = sessionStatus === 'paused' 
+    ? 'Paused' 
+    : (settings.customFocusMessage || 'Stay focused');
   
   const progress = totalTime > 0 ? ((totalTime - timeRemaining) / totalTime) * 100 : 0;
   
@@ -81,47 +97,68 @@ const Focus = () => {
               <p>Settings</p>
             </TooltipContent>
           </Tooltip>
-          <PopoverContent className="w-64" align="end">
-            <div className="space-y-4">
+          <PopoverContent className="w-72" align="end">
+            <div className="space-y-5">
+              {/* Color Theme Section */}
               <div>
-                <h4 className="font-medium text-sm">Color Theme</h4>
-                <p className="text-xs text-muted-foreground mt-1">
+                <h4 className="font-medium text-sm mb-1">Color Theme</h4>
+                <p className="text-xs text-muted-foreground mb-3">
                   Choose your preferred focus color
                 </p>
-              </div>
-              <div className="grid grid-cols-5 gap-3">
-                {(Object.keys(COLOR_THEMES) as PrimaryColorTheme[]).map((theme) => {
-                  const config = COLOR_THEMES[theme];
-                  const isSelected = currentTheme === theme;
-                  return (
-                    <button
-                      key={theme}
-                      onClick={() => handleColorChange(theme)}
-                      className={`
-                        relative w-12 h-12 rounded-full border-2 transition-all cursor-pointer
-                        ${isSelected 
-                          ? 'border-foreground scale-110 ring-2 ring-primary ring-offset-2 shadow-md' 
-                          : 'border-border hover:border-foreground/50 hover:scale-105 hover:shadow-sm'
-                        }
-                      `}
-                      style={{
-                        backgroundColor: `hsl(${config.hue} ${config.saturation}% ${config.lightness}%)`,
-                      }}
-                      title={config.name}
-                      aria-label={`Select ${config.name} theme`}
-                    >
-                      {isSelected && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="pt-2 border-t">
-                <p className="text-xs text-muted-foreground text-center">
+                <div className="grid grid-cols-5 gap-3">
+                  {(Object.keys(COLOR_THEMES) as PrimaryColorTheme[]).map((theme) => {
+                    const config = COLOR_THEMES[theme];
+                    const isSelected = currentTheme === theme;
+                    return (
+                      <button
+                        key={theme}
+                        onClick={() => handleColorChange(theme)}
+                        className={`
+                          relative w-12 h-12 rounded-full border-2 transition-all cursor-pointer
+                          ${isSelected 
+                            ? 'border-foreground scale-110 ring-2 ring-primary ring-offset-2 shadow-md' 
+                            : 'border-border hover:border-foreground/50 hover:scale-105 hover:shadow-sm'
+                          }
+                        `}
+                        style={{
+                          backgroundColor: `hsl(${config.hue} ${config.saturation}% ${config.lightness}%)`,
+                        }}
+                        title={config.name}
+                        aria-label={`Select ${config.name} theme`}
+                      >
+                        {isSelected && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-2">
                   Selected: <span className="font-medium text-foreground">{COLOR_THEMES[currentTheme].name}</span>
+                </p>
+              </div>
+              
+              {/* Custom Message Section */}
+              <div className="pt-3 border-t">
+                <Label htmlFor="custom-message" className="text-sm font-medium mb-2 block">
+                  Custom Message
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Set a personalized message to display during focus sessions
+                </p>
+                <Input
+                  id="custom-message"
+                  type="text"
+                  value={customMessage}
+                  onChange={(e) => handleMessageChange(e.target.value)}
+                  placeholder="Stay focused"
+                  maxLength={50}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {customMessage.length}/50 characters
                 </p>
               </div>
             </div>
@@ -138,7 +175,7 @@ const Focus = () => {
           <ProgressRing percent={progress} variant="focus">
             <TimerDisplay timeRemaining={timeRemaining} variant="focus" />
             <p className="text-sm text-muted-foreground mt-2">
-              {sessionStatus === 'paused' ? 'Paused' : 'Stay focused'}
+              {displayMessage}
             </p>
           </ProgressRing>
           

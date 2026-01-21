@@ -47,13 +47,14 @@ export const getSettings = async (): Promise<UserSettings> => {
     }
 
     if (data) {
-      // Supabase에서 가져온 설정과 localStorage의 색상 테마 병합
+      // Supabase에서 가져온 설정과 localStorage의 커스텀 설정 병합
       const localSettings = getSettingsLocal();
       return {
         focusMinutes: data.focus_minutes,
         workoutMinutes: data.workout_minutes,
         activeYoutubeUrl: data.active_youtube_url,
         primaryColorTheme: localSettings.primaryColorTheme || 'blue',
+        customFocusMessage: localSettings.customFocusMessage,
       };
     }
   } catch (error) {
