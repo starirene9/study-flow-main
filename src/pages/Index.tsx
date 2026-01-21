@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Brain, Dumbbell, Zap } from 'lucide-react';
+import { Play, Brain, Dumbbell, Zap, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStudyFlow } from '@/context/StudyFlowContext';
+import { useAuth } from '@/context/AuthContext';
 import TimePresetButtons from '@/components/studyflow/TimePresetButtons';
 import SliderTimePicker from '@/components/studyflow/SliderTimePicker';
 import YoutubeLinkManager from '@/components/studyflow/YoutubeLinkManager';
@@ -13,6 +14,7 @@ import type { DailySummary } from '@/types/studyflow';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const {
     settings,
     updateSettings,
@@ -43,6 +45,15 @@ const Index = () => {
   }, [getDailySummary]);
 
   const hasActiveVideo = !!activeLink;
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
   
   return (
     <div className="min-h-screen bg-background">
@@ -59,7 +70,20 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground">Focus. Move. Repeat.</p>
               </div>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              {user && (
+                <Button
+                  onClick={handleSignOut}
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-3 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              )}
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>

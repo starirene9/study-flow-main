@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
+import { Mail, Lock, LogIn, UserPlus, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,37 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, isAuthLoading } = useAuth();
+  const { user, signIn, signUp, signOut, isAuthLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // 로그인된 상태면 메인으로 리다이렉트
+  useEffect(() => {
+    if (user && !isAuthLoading) {
+      navigate("/");
+    }
+  }, [user, isAuthLoading, navigate]);
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    setError(null);
+    try {
+      await signOut();
+      // 로그아웃 후 폼 초기화
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to sign out. Please try again.";
+      setError(message);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -35,6 +60,17 @@ const Auth: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // 로그인 중이면 로딩 표시
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -157,6 +193,26 @@ const Auth: React.FC = () => {
           Your data is stored securely in Supabase. You can log in from any device to continue your
           StudyFlow sessions.
         </p>
+
+        {/* 로그인된 상태일 때 로그아웃 버튼 표시 (일반적으로는 표시되지 않지만, 혹시 모를 경우를 대비) */}
+        {user && (
+          <div className="pt-4 border-t border-border">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground text-center">
+                Signed in as <span className="font-medium text-foreground">{user.email}</span>
+              </p>
+              <Button
+                onClick={handleSignOut}
+                disabled={isLoggingOut}
+                variant="outline"
+                className="w-full h-11 text-sm font-semibold flex items-center justify-center gap-2 border-destructive/50 text-destructive hover:bg-destructive/10 hover:border-destructive"
+              >
+                <LogOut className="w-4 h-4" />
+                {isLoggingOut ? "Signing out..." : "Sign Out"}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
