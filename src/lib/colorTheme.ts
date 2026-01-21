@@ -46,3 +46,27 @@ export const loadColorTheme = (theme?: PrimaryColorTheme): void => {
   }
 };
 
+/**
+ * 기본 색상(blue)으로 복원합니다.
+ * Focus 페이지를 벗어날 때 호출하여 다른 페이지는 항상 기본 색상을 유지합니다.
+ */
+export const resetToDefaultColor = (): void => {
+  const root = document.documentElement;
+  const isDark = root.classList.contains('dark');
+  
+  // 기본 blue 색상 값 (index.css에서 정의된 값)
+  if (isDark) {
+    root.style.setProperty('--primary', '220 70% 60%');
+    root.style.setProperty('--primary-soft', '220 70% 15%');
+    root.style.setProperty('--primary-glow', '220 70% 70%');
+    root.style.setProperty('--ring', '220 70% 60%');
+    root.style.setProperty('--shadow-glow-primary', '0 0 50px -8px hsl(220 70% 60% / 0.5)');
+  } else {
+    root.style.setProperty('--primary', '220 70% 50%');
+    root.style.setProperty('--primary-soft', '220 70% 95%');
+    root.style.setProperty('--primary-glow', '220 70% 60%');
+    root.style.setProperty('--ring', '220 70% 50%');
+    root.style.setProperty('--shadow-glow-primary', '0 0 40px -8px hsl(220 70% 50% / 0.4)');
+  }
+};
+

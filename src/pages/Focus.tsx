@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PrimaryColorTheme, COLOR_THEMES } from '@/types/studyflow';
-import { applyColorTheme } from '@/lib/colorTheme';
+import { applyColorTheme, resetToDefaultColor } from '@/lib/colorTheme';
 import SessionHeader from '@/components/studyflow/SessionHeader';
 import TimerDisplay from '@/components/studyflow/TimerDisplay';
 import ProgressRing from '@/components/studyflow/ProgressRing';
@@ -47,9 +47,31 @@ const Focus = () => {
     }
   }, [currentSessionType, sessionStatus, navigate]);
   
-  // 색상 테마 적용
+  // 색상 테마 적용 (Focus 페이지에 마운트될 때)
   useEffect(() => {
     applyColorTheme(currentTheme);
+    
+    // 컴포넌트가 unmount될 때 기본 색상으로 복원
+    return () => {
+      resetToDefaultColor();
+    };
+  }, [currentTheme]);
+  
+  // 다크 모드 변경 감지 및 색상 재적용
+  useEffect(() => {
+    const handleThemeChange = () => {
+      // 다크 모드가 변경되면 색상 테마를 다시 적용
+      applyColorTheme(currentTheme);
+    };
+    
+    // 다크 모드 클래스 변경 감지
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    
+    return () => observer.disconnect();
   }, [currentTheme]);
   
   // 커스텀 메시지 동기화

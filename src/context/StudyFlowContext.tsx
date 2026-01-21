@@ -10,7 +10,7 @@ import {
   DailySummary,
   IS_TEST_MODE,
 } from '@/types/studyflow';
-import { loadColorTheme } from '@/lib/colorTheme';
+// 색상 테마는 Focus 페이지에서만 적용됩니다.
 import {
   getSettings,
   saveSettings,
@@ -135,10 +135,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setYoutubeLinks(loadedLinks);
         setTodayLogs(loadedLogs);
         
-        // 색상 테마 적용
-        if (loadedSettings.primaryColorTheme) {
-          loadColorTheme(loadedSettings.primaryColorTheme);
-        }
+        // 색상 테마는 Focus 페이지에서만 적용됩니다.
       } catch (error) {
         console.error('Error loading initial data:', error);
       } finally {
@@ -148,33 +145,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     loadInitialData();
   }, [user?.id]); // 사용자 ID가 변경될 때마다 다시 로드
   
-  // 색상 테마 변경 감지 및 적용
-  useEffect(() => {
-    if (settings.primaryColorTheme) {
-      loadColorTheme(settings.primaryColorTheme);
-    }
-  }, [settings.primaryColorTheme]);
-  
-  // 다크 모드 변경 감지 및 색상 재적용
-  useEffect(() => {
-    const handleThemeChange = () => {
-      if (settings.primaryColorTheme) {
-        loadColorTheme(settings.primaryColorTheme);
-      }
-    };
-    
-    // 다크 모드 클래스 변경 감지
-    const observer = new MutationObserver(handleThemeChange);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-    
-    // 초기 적용
-    handleThemeChange();
-    
-    return () => observer.disconnect();
-  }, [settings.primaryColorTheme]);
+  // 색상 테마는 Focus 페이지에서만 적용됩니다.
   
   // Update settings
   const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {

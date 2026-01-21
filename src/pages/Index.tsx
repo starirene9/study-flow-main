@@ -12,6 +12,7 @@ import TodayMiniSummary from '@/components/studyflow/TodayMiniSummary';
 import ThemeToggle from '@/components/ThemeToggle';
 import { FOCUS_PRESETS, WORKOUT_PRESETS, FOCUS_PRESETS_TEST, WORKOUT_PRESETS_TEST, IS_TEST_MODE } from '@/types/studyflow';
 import type { DailySummary } from '@/types/studyflow';
+import { resetToDefaultColor } from '@/lib/colorTheme';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -52,6 +53,11 @@ const Index = () => {
     };
     loadSummary();
   }, [getDailySummary]);
+
+  // Index 페이지가 마운트될 때 기본 색상으로 복원
+  useEffect(() => {
+    resetToDefaultColor();
+  }, []);
 
   const hasActiveVideo = !!activeLink;
 
