@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Mail, Lock, LogIn, UserPlus, LogOut, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/ThemeToggle";
+import { supabase } from "@/lib/supabase";
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ const Auth: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState<string>("");
 
   // 로그인된 상태면 메인으로 리다이렉트
   useEffect(() => {
@@ -48,10 +51,29 @@ const Auth: React.FC = () => {
     try {
       if (mode === "signin") {
         await signIn(email, password);
+        navigate("/");
       } else {
-        await signUp(email, password);
+        // Sign up and check if email verification is needed
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // If session is null, email verification is required
+        if (!data.session) {
+          setVerificationEmail(email);
+          setShowEmailVerification(true);
+          setEmail("");
+          setPassword("");
+        } else {
+          // If session exists, user is automatically logged in
+          navigate("/");
+        }
       }
-      navigate("/");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Authentication failed. Please try again.";
@@ -67,6 +89,73 @@ const Auth: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-2">
           <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 이메일 인증 안내 페이지
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-scale-in relative">
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
+          </div>
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-primary-soft mx-auto flex items-center justify-center">
+              <Mail className="w-8 h-8 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold">Check your email</h1>
+              <p className="text-sm text-muted-foreground">
+                We've sent a verification link to
+              </p>
+              <p className="text-sm font-medium text-primary">{verificationEmail}</p>
+            </div>
+            <div className="space-y-4 pt-4">
+              <div className="bg-muted rounded-lg p-4 space-y-3 text-left">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">Next steps:</p>
+                    <ol className="text-xs text-muted-foreground mt-1 space-y-1 list-decimal list-inside">
+                      <li>Open your email inbox</li>
+                      <li>Click the verification link in the email</li>
+                      <li>Return here and sign in</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Didn't receive the email? Check your spam folder or try signing up again.
+              </p>
+            </div>
+            <div className="pt-4 space-y-3">
+              <Button
+                onClick={() => {
+                  setShowEmailVerification(false);
+                  setVerificationEmail("");
+                  setMode("signin");
+                }}
+                className="w-full h-11 text-sm font-semibold"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Go to Sign In
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowEmailVerification(false);
+                  setVerificationEmail("");
+                  setMode("signup");
+                }}
+                className="w-full text-sm"
+              >
+                Try signing up again
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     );
