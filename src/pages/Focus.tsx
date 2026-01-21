@@ -198,12 +198,12 @@ const Focus = () => {
             <ProgressRing 
               percent={progress} 
               variant="focus"
-              size={240}
-              strokeWidth={10}
-              className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] sm:[&>svg]:w-[280px] sm:[&>svg]:h-[280px]"
+              size={280}
+              strokeWidth={12}
+              className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px]"
             >
-              <TimerDisplay timeRemaining={timeRemaining} variant="focus" />
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-2 text-center">
+              <TimerDisplay timeRemaining={timeRemaining} variant="focus" size="lg" />
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-2 text-center max-w-full">
                 {displayMessage}
               </p>
             </ProgressRing>

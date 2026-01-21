@@ -28,6 +28,8 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
         width={size}
         height={size}
         className="transform -rotate-90 w-full h-full"
+        viewBox={`0 0 ${size} ${size}`}
+        preserveAspectRatio="xMidYMid meet"
       >
         {/* Background circle */}
         <circle
@@ -64,8 +66,10 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
       </svg>
       
       {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {children}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
+        <div className="w-full flex flex-col items-center justify-center">
+          {children}
+        </div>
       </div>
     </div>
   );

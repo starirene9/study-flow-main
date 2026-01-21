@@ -86,9 +86,9 @@ const Workout = () => {
             <ProgressRing 
               percent={progress} 
               variant="workout" 
-              size={160}
-              strokeWidth={8}
-              className="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] sm:[&>svg]:w-[180px] sm:[&>svg]:h-[180px]"
+              size={180}
+              strokeWidth={10}
+              className="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px]"
             >
               <TimerDisplay timeRemaining={timeRemaining} variant="workout" size="md" />
             </ProgressRing>
