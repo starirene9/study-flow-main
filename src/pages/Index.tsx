@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Brain, Dumbbell, Zap, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useStudyFlow } from '@/context/StudyFlowContext';
 import { useAuth } from '@/context/AuthContext';
 import TimePresetButtons from '@/components/studyflow/TimePresetButtons';
@@ -82,15 +83,21 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2">
               {user && (
-                <Button
-                  onClick={handleSignOut}
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 px-3 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleSignOut}
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Sign Out</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
               <ThemeToggle />
             </div>
