@@ -21,9 +21,9 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
     <div
       className={cn(
         'timer-display font-mono font-semibold tracking-tight',
-        size === 'sm' && 'text-3xl',
-        size === 'md' && 'text-5xl',
-        size === 'lg' && 'text-6xl sm:text-7xl',
+        size === 'sm' && 'text-2xl sm:text-3xl',
+        size === 'md' && 'text-4xl sm:text-5xl',
+        size === 'lg' && 'text-5xl sm:text-6xl md:text-7xl',
         variant === 'focus' ? 'text-primary' : 'text-workout'
       )}
     >

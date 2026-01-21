@@ -110,16 +110,16 @@ const Auth: React.FC = () => {
   if (showEmailVerification) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-scale-in relative">
-          <div className="absolute top-4 right-4">
-            <ThemeToggle />
+      <div className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-5 sm:space-y-6 animate-scale-in relative">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+          <ThemeToggle />
+        </div>
+        <div className="text-center space-y-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary-soft mx-auto flex items-center justify-center">
+            <Mail className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
           </div>
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary-soft mx-auto flex items-center justify-center">
-              <Mail className="w-8 h-8 text-primary" />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold">Check your email</h1>
+          <div className="space-y-2">
+            <h1 className="text-xl sm:text-2xl font-bold">Check your email</h1>
               <p className="text-sm text-muted-foreground">
                 We've sent a verification link to
               </p>
@@ -150,7 +150,7 @@ const Auth: React.FC = () => {
                   setVerificationEmail("");
                   setMode("signin");
                 }}
-                className="w-full h-11 text-sm font-semibold"
+                className="w-full h-11 sm:h-12 text-sm font-semibold touch-manipulation"
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 Go to Sign In
@@ -162,7 +162,7 @@ const Auth: React.FC = () => {
                   setVerificationEmail("");
                   setMode("signup");
                 }}
-                className="w-full text-sm"
+                className="w-full h-11 sm:h-12 text-sm touch-manipulation"
               >
                 Try signing up again
               </Button>
@@ -174,14 +174,14 @@ const Auth: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-scale-in relative">
-        <div className="absolute top-4 right-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-6 sm:py-8">
+      <div className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-5 sm:space-y-6 animate-scale-in relative">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
           <ThemeToggle />
         </div>
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold">StudyFlow Account</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold">StudyFlow Account</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Sign in or create an account to sync your sessions across devices.
           </p>
         </div>
@@ -254,7 +254,7 @@ const Auth: React.FC = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting || isAuthLoading}
-                className="w-full h-11 text-sm font-semibold flex items-center justify-center gap-2"
+                className="w-full h-11 sm:h-12 text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation"
               >
                 <LogIn className="w-4 h-4" />
                 {isSubmitting ? "Signing in..." : "Sign In"}

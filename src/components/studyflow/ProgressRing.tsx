@@ -7,6 +7,7 @@ interface ProgressRingProps {
   size?: number;
   strokeWidth?: number;
   children?: React.ReactNode;
+  className?: string;
 }
 
 const ProgressRing: React.FC<ProgressRingProps> = ({
@@ -15,17 +16,18 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
   size = 280,
   strokeWidth = 12,
   children,
+  className,
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const strokeDashoffset = circumference - (percent / 100) * circumference;
   
   return (
-    <div className="relative inline-flex items-center justify-center">
+    <div className={cn("relative inline-flex items-center justify-center", className)}>
       <svg
         width={size}
         height={size}
-        className="transform -rotate-90"
+        className="transform -rotate-90 w-full h-full"
       >
         {/* Background circle */}
         <circle

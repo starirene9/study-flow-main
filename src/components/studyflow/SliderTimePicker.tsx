@@ -28,7 +28,7 @@ const SliderTimePicker: React.FC<SliderTimePickerProps> = ({
           <span className="text-sm font-medium text-muted-foreground">{label}</span>
           <span
             className={cn(
-              'text-2xl font-bold font-mono',
+              'text-xl sm:text-2xl font-bold font-mono',
               variant === 'focus' ? 'text-primary' : 'text-workout'
             )}
           >

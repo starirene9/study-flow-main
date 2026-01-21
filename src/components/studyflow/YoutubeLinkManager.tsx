@@ -225,22 +225,23 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   };
   
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-foreground">Workout Videos</h3>
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-medium text-foreground text-sm sm:text-base">Workout Videos</h3>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsAdding(!isAdding)}
-          className="text-workout hover:text-workout-glow"
+          className="text-workout hover:text-workout-glow touch-manipulation h-9 sm:h-10"
         >
           <Plus className="w-4 h-4 mr-1" />
-          Add Video
+          <span className="hidden sm:inline">Add Video</span>
+          <span className="sm:hidden">Add</span>
         </Button>
       </div>
       
       {isAdding && (
-        <div className="space-y-3 p-4 bg-muted rounded-lg animate-slide-up">
+        <div className="space-y-3 p-3 sm:p-4 bg-muted rounded-lg animate-slide-up">
           <div className="space-y-2">
             <Label htmlFor="duration-select" className="text-sm font-medium">
               Duration (required) *
@@ -294,7 +295,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
             <Button
               onClick={handleAdd}
               disabled={!newUrl || !extractVideoId(newUrl) || !selectedDuration || isProcessing}
-              className="bg-workout hover:bg-workout-glow text-workout-foreground"
+              className="bg-workout hover:bg-workout-glow text-workout-foreground h-10 sm:h-11 touch-manipulation flex-1"
             >
               {isProcessing ? 'Adding...' : 'Add'}
             </Button>
@@ -306,6 +307,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
                 setNewTitle('');
                 setSelectedDuration('');
               }}
+              className="h-10 sm:h-11 touch-manipulation"
             >
               Cancel
             </Button>
@@ -327,31 +329,31 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           </div>
         )}
         {filteredLinks.map((link) => (
-          <div
+            <div
             key={link.id}
             className={cn(
-              'flex items-center justify-between p-3 rounded-lg border transition-all',
+              'flex items-center justify-between p-2.5 sm:p-3 rounded-lg border transition-all',
               link.isActive
                 ? 'border-workout bg-workout-soft'
                 : 'border-border bg-card hover:border-muted-foreground/30'
             )}
           >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <button
                 onClick={() => handleActivate(link.id)}
                 className={cn(
-                  'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all',
+                  'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all touch-manipulation min-h-[44px] min-w-[44px]',
                   link.isActive
                     ? 'border-workout bg-workout text-workout-foreground'
                     : 'border-muted-foreground/30 hover:border-workout',
                 )}
               >
-                {link.isActive && <Check className="w-3 h-3" />}
+                {link.isActive && <Check className="w-3 h-3 sm:w-4 sm:h-4" />}
               </button>
               
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm truncate">{link.title}</p>
-                <p className="text-xs text-muted-foreground truncate">{link.url}</p>
+                <p className="font-medium text-xs sm:text-sm truncate">{link.title}</p>
+                <p className="text-xs text-muted-foreground truncate hidden sm:block">{link.url}</p>
               </div>
             </div>
             
@@ -359,7 +361,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 sm:h-10 sm:w-10 text-muted-foreground hover:text-foreground touch-manipulation"
                 onClick={() => window.open(link.url, '_blank')}
               >
                 <ExternalLink className="w-4 h-4" />
@@ -369,7 +371,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  className="h-9 w-9 sm:h-10 sm:w-10 text-muted-foreground hover:text-destructive touch-manipulation"
                   onClick={() => handleDelete(link.id)}
                 >
                   <Trash2 className="w-4 h-4" />

@@ -46,14 +46,14 @@ const Workout = () => {
       {/* Workout background - more energetic */}
       <div className="fixed inset-0 bg-gradient-to-br from-workout-soft via-background to-background pointer-events-none" />
       
-      <main className="relative flex-1 flex flex-col px-4 py-6 sm:py-12">
-        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 animate-scale-in">
+      <main className="relative flex-1 flex flex-col px-4 sm:px-6 py-4 sm:py-6 lg:py-12">
+        <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 sm:gap-6 animate-scale-in">
           {/* Banner */}
-          <div className="bg-workout text-workout-foreground rounded-xl p-4 flex items-center gap-3 animate-pulse-slow shadow-glow-workout">
-            <Dumbbell className="w-6 h-6 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="font-bold text-lg">Stand up and move now!</p>
-              <p className="text-sm opacity-90">{videoTitle}</p>
+          <div className="bg-workout text-workout-foreground rounded-xl p-3 sm:p-4 flex items-center gap-2 sm:gap-3 animate-pulse-slow shadow-glow-workout">
+            <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-base sm:text-lg truncate">Stand up and move now!</p>
+              <p className="text-xs sm:text-sm opacity-90 truncate">{videoTitle}</p>
             </div>
           </div>
           
@@ -83,7 +83,13 @@ const Workout = () => {
           
           {/* Timer */}
           <div className="flex justify-center">
-            <ProgressRing percent={progress} variant="workout" size={180}>
+            <ProgressRing 
+              percent={progress} 
+              variant="workout" 
+              size={160}
+              strokeWidth={8}
+              className="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] sm:[&>svg]:w-[180px] sm:[&>svg]:h-[180px]"
+            >
               <TimerDisplay timeRemaining={timeRemaining} variant="workout" size="md" />
             </ProgressRing>
           </div>

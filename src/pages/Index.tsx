@@ -74,20 +74,20 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container max-w-2xl py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-workout flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+        <div className="container max-w-2xl px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-workout flex items-center justify-center flex-shrink-0">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold">StudyFlow</h1>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-muted-foreground">Focus. Move. Repeat.</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl font-bold truncate">StudyFlow</h1>
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                  <p className="text-xs text-muted-foreground whitespace-nowrap">Focus. Move. Repeat.</p>
                   {user?.email && (
                     <>
-                      <span className="text-xs text-muted-foreground">•</span>
-                      <p className="text-xs font-medium text-primary">
+                      <span className="text-xs text-muted-foreground hidden sm:inline">•</span>
+                      <p className="text-xs font-medium text-primary truncate max-w-[120px] sm:max-w-none">
                         {user.email}
                       </p>
                     </>
@@ -95,7 +95,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               {user && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -103,9 +103,9 @@ const Index = () => {
                       onClick={handleSignOut}
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                      className="h-9 w-9 sm:h-10 sm:w-10 text-muted-foreground hover:text-foreground touch-manipulation"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -119,7 +119,7 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="container max-w-2xl py-6 space-y-8">
+      <main className="container max-w-2xl px-4 sm:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
         {/* Today's Summary */}
         {(summary.totalFocusMinutes > 0 || summary.totalWorkoutMinutes > 0) && (
           <section className="animate-fade-in">
@@ -138,10 +138,10 @@ const Index = () => {
         )}
         
         {/* Focus Time */}
-        <section className="space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Focus Time</h2>
+        <section className="space-y-3 sm:space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Brain className="w-5 h-5 text-primary flex-shrink-0" />
+            <h2 className="text-base sm:text-lg font-semibold">Focus Time</h2>
             {IS_TEST_MODE && (
               <span className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-full font-medium">
                 TEST MODE
@@ -149,7 +149,7 @@ const Index = () => {
             )}
           </div>
           
-          <div className="glass-card rounded-xl p-5 space-y-5">
+          <div className="glass-card rounded-xl p-4 sm:p-5 space-y-4 sm:space-y-5">
             <SliderTimePicker
               min={focusMin}
               max={90}
@@ -173,13 +173,13 @@ const Index = () => {
         </section>
         
         {/* Workout Time */}
-        <section className="space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <section className="space-y-3 sm:space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center gap-2">
-            <Dumbbell className="w-5 h-5 text-workout" />
-            <h2 className="text-lg font-semibold">Workout Time</h2>
+            <Dumbbell className="w-5 h-5 text-workout flex-shrink-0" />
+            <h2 className="text-base sm:text-lg font-semibold">Workout Time</h2>
           </div>
           
-          <div className="glass-card rounded-xl p-5 space-y-5">
+          <div className="glass-card rounded-xl p-4 sm:p-5 space-y-4 sm:space-y-5">
             <SliderTimePicker
               min={workoutMin}
               max={30}
@@ -204,7 +204,7 @@ const Index = () => {
         
         {/* YouTube Links */}
         <section className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <div className="glass-card rounded-xl p-5">
+          <div className="glass-card rounded-xl p-4 sm:p-5">
             <YoutubeLinkManager
               links={youtubeLinks}
               onAdd={addYoutubeLink}
@@ -216,14 +216,14 @@ const Index = () => {
         </section>
         
         {/* Start Button */}
-        <section className="pt-4 pb-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <section className="pt-2 sm:pt-4 pb-6 sm:pb-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <Button
             onClick={startCycle}
             disabled={!hasActiveVideo}
             size="lg"
-            className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-primary to-workout hover:from-primary-glow hover:to-workout-glow shadow-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-primary to-workout hover:from-primary-glow hover:to-workout-glow shadow-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
           >
-            <Play className="w-5 h-5 mr-2" />
+            <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Start Cycle
           </Button>
           

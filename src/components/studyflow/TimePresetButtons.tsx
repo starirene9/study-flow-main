@@ -23,8 +23,8 @@ const TimePresetButtons: React.FC<TimePresetButtonsProps> = ({
           key={value}
           onClick={() => onSelect(value)}
           className={cn(
-            'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
-            'border-2 hover:scale-105 active:scale-95',
+            'px-3 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 touch-manipulation',
+            'border-2 hover:scale-105 active:scale-95 min-h-[44px]',
             selected === value
               ? variant === 'focus'
                 ? 'bg-primary text-primary-foreground border-primary shadow-glow-primary'

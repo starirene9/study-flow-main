@@ -22,21 +22,21 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   const isPaused = status === 'paused';
   
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3 sm:gap-4">
       <Button
         onClick={isPaused ? onResume : onPause}
         size="lg"
         className={cn(
-          'w-16 h-16 rounded-full transition-all duration-200',
+          'w-14 h-14 sm:w-16 sm:h-16 rounded-full transition-all duration-200 touch-manipulation',
           variant === 'focus'
             ? 'bg-primary hover:bg-primary-glow shadow-glow-primary'
             : 'bg-workout hover:bg-workout-glow shadow-glow-workout'
         )}
       >
         {isPaused ? (
-          <Play className="w-6 h-6" />
+          <Play className="w-5 h-5 sm:w-6 sm:h-6" />
         ) : (
-          <Pause className="w-6 h-6" />
+          <Pause className="w-5 h-5 sm:w-6 sm:h-6" />
         )}
       </Button>
       
@@ -44,9 +44,9 @@ const SessionControls: React.FC<SessionControlsProps> = ({
         onClick={onStop}
         size="lg"
         variant="outline"
-        className="w-16 h-16 rounded-full border-2 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+        className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive touch-manipulation"
       >
-        <Square className="w-5 h-5" />
+        <Square className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>
     </div>
   );

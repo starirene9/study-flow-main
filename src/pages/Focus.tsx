@@ -101,7 +101,7 @@ const Focus = () => {
       <div className="fixed inset-0 bg-gradient-to-br from-primary-soft via-background to-background pointer-events-none" />
       
       {/* Settings Button */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
         <Popover open={isColorPickerOpen} onOpenChange={setIsColorPickerOpen}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -109,9 +109,9 @@ const Focus = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                  className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:text-foreground touch-manipulation"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
               </PopoverTrigger>
             </TooltipTrigger>
@@ -119,7 +119,7 @@ const Focus = () => {
               <p>Settings</p>
             </TooltipContent>
           </Tooltip>
-          <PopoverContent className="w-72" align="end">
+          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-72 max-w-sm" align="end">
             <div className="space-y-5">
               {/* Color Theme Section */}
               <div>
@@ -188,18 +188,26 @@ const Focus = () => {
         </Popover>
       </div>
       
-      <main className="relative flex-1 flex flex-col items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm flex flex-col items-center gap-8 animate-scale-in">
+      <main className="relative flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-12">
+        <div className="w-full max-w-sm flex flex-col items-center gap-6 sm:gap-8 animate-scale-in">
           {/* Session Info */}
           <SessionHeader cycleCount={cycleCount} sessionType="FOCUS" />
           
           {/* Timer Ring */}
-          <ProgressRing percent={progress} variant="focus">
-            <TimerDisplay timeRemaining={timeRemaining} variant="focus" />
-            <p className="text-sm text-muted-foreground mt-2">
-              {displayMessage}
-            </p>
-          </ProgressRing>
+          <div className="w-full flex justify-center">
+            <ProgressRing 
+              percent={progress} 
+              variant="focus"
+              size={240}
+              strokeWidth={10}
+              className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] sm:[&>svg]:w-[280px] sm:[&>svg]:h-[280px]"
+            >
+              <TimerDisplay timeRemaining={timeRemaining} variant="focus" />
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-2 text-center">
+                {displayMessage}
+              </p>
+            </ProgressRing>
+          </div>
           
           {/* Controls */}
           <SessionControls
