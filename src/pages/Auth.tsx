@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, UserPlus, LogOut, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, LogIn, UserPlus, LogOut, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,9 @@ const Auth: React.FC = () => {
   const { user, signIn, signUp, signOut, isAuthLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,6 +38,7 @@ const Auth: React.FC = () => {
       // 로그아웃 후 폼 초기화
       setEmail("");
       setPassword("");
+      setConfirmPassword("");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to sign out. Please try again.";
@@ -53,6 +57,13 @@ const Auth: React.FC = () => {
         await signIn(email, password);
         navigate("/");
       } else {
+        // 비밀번호 일치 검사
+        if (password !== confirmPassword) {
+          setError("Passwords do not match. Please try again.");
+          setIsSubmitting(false);
+          return;
+        }
+
         // Sign up and check if email verification is needed
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -69,6 +80,7 @@ const Auth: React.FC = () => {
           setShowEmailVerification(true);
           setEmail("");
           setPassword("");
+          setConfirmPassword("");
         } else {
           // If session exists, user is automatically logged in
           navigate("/");
@@ -176,7 +188,13 @@ const Auth: React.FC = () => {
 
         <Tabs
           defaultValue="signin"
-          onValueChange={(value) => setMode(value as "signin" | "signup")}
+          onValueChange={(value) => {
+            setMode(value as "signin" | "signup");
+            // 탭 전환 시 필드 초기화
+            setPassword("");
+            setConfirmPassword("");
+            setError(null);
+          }}
         >
           <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -204,15 +222,29 @@ const Auth: React.FC = () => {
                   <Lock className="w-4 h-4 text-muted-foreground" />
                   Password
                 </label>
-                <Input
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               {error && (
                 <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
@@ -251,15 +283,68 @@ const Auth: React.FC = () => {
                   <Lock className="w-4 h-4 text-muted-foreground" />
                   Password
                 </label>
-                <Input
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-xs text-destructive">
+                    Passwords do not match
+                  </p>
+                )}
+                {confirmPassword && password === confirmPassword && password.length >= 6 && (
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    Passwords match
+                  </p>
+                )}
               </div>
               {error && (
                 <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
@@ -268,7 +353,7 @@ const Auth: React.FC = () => {
               )}
               <Button
                 type="submit"
-                disabled={isSubmitting || isAuthLoading}
+                disabled={isSubmitting || isAuthLoading || password !== confirmPassword || password.length < 6}
                 className="w-full h-11 text-sm font-semibold flex items-center justify-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
