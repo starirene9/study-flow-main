@@ -110,9 +110,6 @@ const Focus = () => {
   
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-primary-soft via-background to-background pointer-events-none" />
-      
       {/* Settings and Dark Mode Buttons */}
       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center gap-2">
         {/* Dark Mode Toggle */}
