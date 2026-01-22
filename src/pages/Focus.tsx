@@ -113,8 +113,33 @@ const Focus = () => {
       {/* Background gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-primary-soft via-background to-background pointer-events-none" />
       
-      {/* Settings Button */}
-      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+      {/* Settings and Dark Mode Buttons */}
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center gap-2">
+        {/* Dark Mode Toggle */}
+        {mounted && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:text-foreground touch-manipulation"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5 sm:w-6 sm:h-6" />
+                ) : (
+                  <Moon className="w-5 h-5 sm:w-6 sm:h-6" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+        
+        {/* Settings Button */}
         <Popover open={isColorPickerOpen} onOpenChange={setIsColorPickerOpen}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -215,35 +240,6 @@ const Focus = () => {
                   />
                 </div>
               </div>
-              
-              {/* Dark Mode Section */}
-              {mounted && (
-                <div className="pt-3 border-t">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="dark-mode-toggle" className="text-sm font-medium">
-                        Dark Mode
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Switch between light and dark theme
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                      className="h-9 w-9"
-                      aria-label="Toggle theme"
-                    >
-                      {theme === 'dark' ? (
-                        <Sun className="w-4 h-4" />
-                      ) : (
-                        <Moon className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           </PopoverContent>
         </Popover>
