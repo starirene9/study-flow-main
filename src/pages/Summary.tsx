@@ -74,16 +74,6 @@ const Summary = () => {
           <p className="text-muted-foreground">{today}</p>
         </div>
         
-        {/* Success Badge */}
-        {summary.isSuccess && (
-          <div className="flex justify-center animate-scale-in">
-            <div className="flex items-center gap-3 px-6 py-3 bg-workout-soft rounded-full shadow-glow-workout">
-              <Trophy className="w-6 h-6 text-workout" />
-              <span className="font-bold text-workout text-lg">Success Day!</span>
-            </div>
-          </div>
-        )}
-        
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up">
           {/* Focus Card */}
@@ -107,12 +97,6 @@ const Summary = () => {
             </p>
             <p className="text-xs sm:text-sm text-muted-foreground">Total Workout Time</p>
           </div>
-        </div>
-        
-        {/* Cycles */}
-        <div className="glass-card rounded-xl p-5 sm:p-6 text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <p className="text-4xl sm:text-5xl font-bold mb-2">{summary.completedCycles}</p>
-          <p className="text-sm sm:text-base text-muted-foreground">Completed Cycles</p>
         </div>
         
         {/* Hourly Timeline */}

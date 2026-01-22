@@ -247,7 +247,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
   
   // Log session completion
-  const logSession = useCallback(async (type: SessionType, startTime: Date, endTime: Date, videoUrl?: string) => {
+  const logSession = useCallback(async (type: SessionType, startTime: Date, endTime: Date, videoUrl?: string, isCompleted: boolean = true) => {
     const durationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / 60000);
     const log = await saveSessionLog({
       sessionDate: getTodayDate(),
@@ -256,6 +256,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       endTime,
       durationMinutes,
       youtubeUrl: type === 'WORKOUT' ? videoUrl : undefined,
+      isCompleted,
     });
     setTodayLogs((prev) => [...prev, log]);
     // Refresh today's logs

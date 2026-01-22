@@ -8,56 +8,146 @@ interface HourlyTimelineGridProps {
 
 const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
   const currentHour = new Date().getHours();
+  const maxMinutes = 60; // Maximum minutes per hour for scaling
+  
+  // Sort buckets by hour
+  const sortedBuckets = [...buckets].sort((a, b) => a.hour - b.hour);
+  
+  // Find max value for scaling
+  const maxValue = Math.max(
+    ...sortedBuckets.map(b => Math.max(b.focusMinutes, b.workoutMinutes)),
+    1
+  );
+  
+  const formatHour = (hour: number) => {
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour} ${period}`;
+  };
+  
+  const getBarHeight = (minutes: number) => {
+    if (minutes === 0) return 0;
+    return Math.max((minutes / maxValue) * 100, 2); // Minimum 2% for visibility
+  };
   
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>12 AM</span>
-        <span>6 AM</span>
-        <span>12 PM</span>
-        <span>6 PM</span>
-        <span>12 AM</span>
+    <div className="space-y-4">
+      {/* Y-axis labels */}
+      <div className="flex items-end justify-between px-2">
+        <div className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
+          <span>{maxValue}m</span>
+          <span className="opacity-0">0m</span>
+        </div>
+        <div className="flex-1"></div>
+        <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span>{Math.floor(maxValue / 2)}m</span>
+          <span>0m</span>
+        </div>
       </div>
       
-      <div className="grid grid-cols-24 gap-0.5 sm:gap-1">
-        {buckets.map((bucket) => (
-          <div
-            key={bucket.hour}
-            className={cn(
-              'h-12 sm:h-16 rounded-sm sm:rounded transition-all duration-200 relative group',
-              bucket.dominantType === 'FOCUS' && 'bg-primary',
-              bucket.dominantType === 'WORKOUT' && 'bg-workout',
-              bucket.dominantType === 'IDLE' && 'bg-idle-soft',
-              bucket.hour === currentHour && 'ring-2 ring-foreground/50'
-            )}
-          >
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-              <span className="font-medium">{bucket.hour}:00</span>
-              {bucket.dominantType !== 'IDLE' && (
-                <div className="text-muted-foreground">
-                  {bucket.focusMinutes > 0 && <div>Study: {bucket.focusMinutes}m</div>}
-                  {bucket.workoutMinutes > 0 && <div>Workout: {bucket.workoutMinutes}m</div>}
+      {/* Chart Container */}
+      <div className="relative">
+        {/* Y-axis grid lines */}
+        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+          {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+            <div
+              key={ratio}
+              className="border-t border-border/30"
+              style={{ marginTop: ratio === 0 ? 0 : '-1px' }}
+            />
+          ))}
+        </div>
+        
+        {/* Bars */}
+        <div className="flex items-end justify-between gap-1 sm:gap-2 px-2 pb-2" style={{ minHeight: '200px' }}>
+          {sortedBuckets.map((bucket) => {
+            const isCurrentHour = bucket.hour === currentHour;
+            const focusHeight = getBarHeight(bucket.focusMinutes);
+            const workoutHeight = getBarHeight(bucket.workoutMinutes);
+            
+            return (
+              <div
+                key={bucket.hour}
+                className={cn(
+                  'flex-1 flex flex-col items-center gap-1 group relative',
+                  isCurrentHour && 'ring-2 ring-foreground/30 rounded-lg p-1 -m-1'
+                )}
+              >
+                {/* Bars Container */}
+                <div className="flex items-end gap-0.5 sm:gap-1 w-full justify-center" style={{ height: '200px' }}>
+                  {/* Study Bar (Blue) */}
+                  <div
+                    className={cn(
+                      'w-full bg-primary rounded-t transition-all duration-300 relative group/bar',
+                      bucket.focusMinutes > 0 && 'min-h-[4px]'
+                    )}
+                    style={{
+                      height: `${focusHeight}%`,
+                      maxHeight: '100%',
+                    }}
+                  >
+                    {/* Tooltip for Study */}
+                    {bucket.focusMinutes > 0 && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
+                        <div className="font-medium">Study: {bucket.focusMinutes}m</div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Workout Bar (Green) */}
+                  <div
+                    className={cn(
+                      'w-full bg-workout rounded-t transition-all duration-300 relative group/bar',
+                      bucket.workoutMinutes > 0 && 'min-h-[4px]'
+                    )}
+                    style={{
+                      height: `${workoutHeight}%`,
+                      maxHeight: '100%',
+                    }}
+                  >
+                    {/* Tooltip for Workout */}
+                    {bucket.workoutMinutes > 0 && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
+                        <div className="font-medium">Workout: {bucket.workoutMinutes}m</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
-        ))}
+                
+                {/* X-axis label (Hour) */}
+                <div className={cn(
+                  'text-xs sm:text-sm font-medium mt-1',
+                  isCurrentHour ? 'text-foreground' : 'text-muted-foreground'
+                )}>
+                  {formatHour(bucket.hour)}
+                </div>
+                
+                {/* Minutes labels below bars */}
+                {(bucket.focusMinutes > 0 || bucket.workoutMinutes > 0) && (
+                  <div className="text-[10px] text-muted-foreground/70 mt-0.5">
+                    {bucket.focusMinutes > 0 && (
+                      <div className="text-primary">{bucket.focusMinutes}m</div>
+                    )}
+                    {bucket.workoutMinutes > 0 && (
+                      <div className="text-workout">{bucket.workoutMinutes}m</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
       
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 pt-2">
+      <div className="flex items-center justify-center gap-4 sm:gap-6 pt-2 border-t border-border/30">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary" />
-          <span className="text-xs text-muted-foreground">Study</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Study Time</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-workout" />
-          <span className="text-xs text-muted-foreground">Workout</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-idle-soft" />
-          <span className="text-xs text-muted-foreground">Idle</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Workout Time</span>
         </div>
       </div>
     </div>

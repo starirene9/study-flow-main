@@ -43,6 +43,7 @@ export interface SessionLog {
   endTime: Date;
   durationMinutes: number;
   youtubeUrl?: string;
+  isCompleted?: boolean; // true if session completed naturally, false if stopped manually
 }
 
 export interface HourlyBucket {
