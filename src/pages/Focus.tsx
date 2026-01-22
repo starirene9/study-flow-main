@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings } from 'lucide-react';
+import { Settings, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useStudyFlow } from '@/context/StudyFlowContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,8 @@ const Focus = () => {
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [customMessage, setCustomMessage] = useState(settings.customFocusMessage || '');
   const currentTheme = settings.primaryColorTheme || 'blue';
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   
   // Redirect if not in active session
   useEffect(() => {
@@ -79,6 +82,11 @@ const Focus = () => {
   useEffect(() => {
     setCustomMessage(settings.customFocusMessage || '');
   }, [settings.customFocusMessage]);
+  
+  // Prevent hydration mismatch for theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const handleColorChange = (theme: PrimaryColorTheme) => {
     updateSettings({ primaryColorTheme: theme });
@@ -207,6 +215,35 @@ const Focus = () => {
                   />
                 </div>
               </div>
+              
+              {/* Dark Mode Section */}
+              {mounted && (
+                <div className="pt-3 border-t">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="dark-mode-toggle" className="text-sm font-medium">
+                        Dark Mode
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Switch between light and dark theme
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                      className="h-9 w-9"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'dark' ? (
+                        <Sun className="w-4 h-4" />
+                      ) : (
+                        <Moon className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </PopoverContent>
         </Popover>
