@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Brain, Dumbbell, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DailySummary } from '@/types/studyflow';
@@ -8,6 +9,7 @@ interface TodayMiniSummaryProps {
 }
 
 const TodayMiniSummary: React.FC<TodayMiniSummaryProps> = ({ summary }) => {
+  const { t } = useTranslation();
   const formatTime = (minutes: number) => {
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -20,11 +22,11 @@ const TodayMiniSummary: React.FC<TodayMiniSummaryProps> = ({ summary }) => {
   return (
     <div className="glass-card rounded-xl p-3 sm:p-4 animate-fade-in">
       <div className="flex items-center justify-between mb-2 sm:mb-3">
-        <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Today's Progress</h3>
+        <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('index.todaySummary')}</h3>
         {summary.isSuccess && (
           <div className="flex items-center gap-1 text-workout">
             <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="text-xs font-medium">Success!</span>
+            <span className="text-xs font-medium">{t('summary.success')}</span>
           </div>
         )}
       </div>
@@ -35,7 +37,7 @@ const TodayMiniSummary: React.FC<TodayMiniSummaryProps> = ({ summary }) => {
             <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
           </div>
           <p className="text-base sm:text-lg font-bold text-primary">{formatTime(summary.totalFocusMinutes)}</p>
-          <p className="text-xs text-muted-foreground">Study</p>
+          <p className="text-xs text-muted-foreground">{t('session.focus')}</p>
         </div>
         
         <div className="text-center">
@@ -43,7 +45,7 @@ const TodayMiniSummary: React.FC<TodayMiniSummaryProps> = ({ summary }) => {
             <Dumbbell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-workout" />
           </div>
           <p className="text-base sm:text-lg font-bold text-workout">{formatTime(summary.totalWorkoutMinutes)}</p>
-          <p className="text-xs text-muted-foreground">Workout</p>
+          <p className="text-xs text-muted-foreground">{t('session.workout')}</p>
         </div>
         
         <div className="text-center">
@@ -53,7 +55,7 @@ const TodayMiniSummary: React.FC<TodayMiniSummaryProps> = ({ summary }) => {
             </div>
           </div>
           <p className="text-base sm:text-lg font-bold">{summary.completedCycles}</p>
-          <p className="text-xs text-muted-foreground">Cycles</p>
+          <p className="text-xs text-muted-foreground">{t('session.cycle')}</p>
         </div>
       </div>
     </div>

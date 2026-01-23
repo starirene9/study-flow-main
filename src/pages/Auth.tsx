@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, LogIn, UserPlus, LogOut, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -6,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/ThemeToggle";
+import LanguageToggle from "@/components/LanguageToggle";
 import { supabase } from "@/lib/supabase";
 
 const Auth: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, signIn, signUp, signOut, isAuthLoading } = useAuth();
   const [email, setEmail] = useState("");
@@ -59,7 +62,7 @@ const Auth: React.FC = () => {
       } else {
         // 비밀번호 일치 검사
         if (password !== confirmPassword) {
-          setError("Passwords do not match. Please try again.");
+          setError(t('auth.passwordsNotMatch'));
           setIsSubmitting(false);
           return;
         }
@@ -88,7 +91,7 @@ const Auth: React.FC = () => {
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Authentication failed. Please try again.";
+        err instanceof Error ? err.message : t('auth.authenticationFailed');
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -100,7 +103,7 @@ const Auth: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -111,7 +114,8 @@ const Auth: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-5 sm:space-y-6 animate-scale-in relative">
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
+          <LanguageToggle />
           <ThemeToggle />
         </div>
         <div className="text-center space-y-4">
@@ -119,29 +123,20 @@ const Auth: React.FC = () => {
             <Mail className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl sm:text-2xl font-bold">Check your email</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">{t('auth.emailVerification')}</h1>
               <p className="text-sm text-muted-foreground">
-                We've sent a verification link to
+                {t('auth.verificationSent', { email: verificationEmail })}
               </p>
-              <p className="text-sm font-medium text-primary">{verificationEmail}</p>
             </div>
             <div className="space-y-4 pt-4">
               <div className="bg-muted rounded-lg p-4 space-y-3 text-left">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium">Next steps:</p>
-                    <ol className="text-xs text-muted-foreground mt-1 space-y-1 list-decimal list-inside">
-                      <li>Open your email inbox</li>
-                      <li>Click the verification link in the email</li>
-                      <li>Return here and sign in</li>
-                    </ol>
+                    <p className="text-sm font-medium">{t('auth.checkEmail')}</p>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Didn't receive the email? Check your spam folder or try signing up again.
-              </p>
             </div>
             <div className="pt-4 space-y-3">
               <Button
@@ -153,18 +148,7 @@ const Auth: React.FC = () => {
                 className="w-full h-11 sm:h-12 text-sm font-semibold touch-manipulation"
               >
                 <LogIn className="w-4 h-4 mr-2" />
-                Go to Sign In
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setShowEmailVerification(false);
-                  setVerificationEmail("");
-                  setMode("signup");
-                }}
-                className="w-full h-11 sm:h-12 text-sm touch-manipulation"
-              >
-                Try signing up again
+                {t('auth.backToSignIn')}
               </Button>
             </div>
           </div>
@@ -176,13 +160,14 @@ const Auth: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-6 sm:py-8">
       <div className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-5 sm:space-y-6 animate-scale-in relative">
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
+          <LanguageToggle />
           <ThemeToggle />
         </div>
         <div className="text-center space-y-2">
           <h1 className="text-xl sm:text-2xl font-bold">StudyFlow Account</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Sign in or create an account to sync your sessions across devices.
+            {t('auth.signInTitle')} / {t('auth.signUpTitle')}
           </p>
         </div>
 
@@ -197,8 +182,8 @@ const Auth: React.FC = () => {
           }}
         >
           <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin">{t('common.signIn')}</TabsTrigger>
+            <TabsTrigger value="signup">{t('common.signUp')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
@@ -257,7 +242,7 @@ const Auth: React.FC = () => {
                 className="w-full h-11 sm:h-12 text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation"
               >
                 <LogIn className="w-4 h-4" />
-                {isSubmitting ? "Signing in..." : "Sign In"}
+                {isSubmitting ? t('common.signIn') + '...' : t('common.signIn')}
               </Button>
             </form>
           </TabsContent>
@@ -267,7 +252,7 @@ const Auth: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Mail className="w-4 h-4 text-muted-foreground" />
-                  Email
+                  {t('common.email')}
                 </label>
                 <Input
                   type="email"
@@ -281,7 +266,7 @@ const Auth: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Lock className="w-4 h-4 text-muted-foreground" />
-                  Password
+                  {t('common.password')}
                 </label>
                 <div className="relative">
                   <Input
@@ -310,7 +295,7 @@ const Auth: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Lock className="w-4 h-4 text-muted-foreground" />
-                  Confirm Password
+                  {t('common.confirmPassword')}
                 </label>
                 <div className="relative">
                   <Input
@@ -337,12 +322,12 @@ const Auth: React.FC = () => {
                 </div>
                 {confirmPassword && password !== confirmPassword && (
                   <p className="text-xs text-destructive">
-                    Passwords do not match
+                    {t('auth.passwordsNotMatch')}
                   </p>
                 )}
                 {confirmPassword && password === confirmPassword && password.length >= 6 && (
                   <p className="text-xs text-green-600 dark:text-green-400">
-                    Passwords match
+                    {t('auth.passwordsMatch')}
                   </p>
                 )}
               </div>
@@ -357,15 +342,14 @@ const Auth: React.FC = () => {
                 className="w-full h-11 text-sm font-semibold flex items-center justify-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
-                {isSubmitting ? "Creating account..." : "Create Account"}
+                {isSubmitting ? t('common.signUp') + '...' : t('common.signUp')}
               </Button>
             </form>
           </TabsContent>
         </Tabs>
 
         <p className="text-xs text-muted-foreground text-center">
-          Your data is stored securely in Supabase. You can log in from any device to continue your
-          StudyFlow sessions.
+          {t('auth.dataStoredSecurely')}
         </p>
 
         {/* 로그인된 상태일 때 로그아웃 버튼 표시 (일반적으로는 표시되지 않지만, 혹시 모를 경우를 대비) */}
@@ -373,7 +357,7 @@ const Auth: React.FC = () => {
           <div className="pt-4 border-t border-border">
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground text-center">
-                Signed in as <span className="font-medium text-foreground">{user.email}</span>
+                {t('auth.signedInAs')} <span className="font-medium text-foreground">{user.email}</span>
               </p>
               <Button
                 onClick={handleSignOut}
@@ -382,7 +366,7 @@ const Auth: React.FC = () => {
                 className="w-full h-11 text-sm font-semibold flex items-center justify-center gap-2 border-destructive/50 text-destructive hover:bg-destructive/10 hover:border-destructive"
               >
                 <LogOut className="w-4 h-4" />
-                {isLoggingOut ? "Signing out..." : "Sign Out"}
+                {isLoggingOut ? t('common.signOut') + '...' : t('common.signOut')}
               </Button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { HourlyBucket } from '@/types/studyflow';
 
@@ -7,6 +8,7 @@ interface HourlyTimelineGridProps {
 }
 
 const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
+  const { t } = useTranslation();
   const currentHour = new Date().getHours();
   const maxMinutes = 60; // Maximum minutes per hour for scaling
   
@@ -89,7 +91,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                     {/* Tooltip for Study */}
                     {bucket.focusMinutes > 0 && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                        <div className="font-medium">Study: {bucket.focusMinutes}m</div>
+                        <div className="font-medium">{t('summary.totalStudyTime')}: {bucket.focusMinutes}m</div>
                       </div>
                     )}
                   </div>
@@ -108,7 +110,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                     {/* Tooltip for Workout */}
                     {bucket.workoutMinutes > 0 && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                        <div className="font-medium">Workout: {bucket.workoutMinutes}m</div>
+                        <div className="font-medium">{t('summary.totalWorkoutTime')}: {bucket.workoutMinutes}m</div>
                       </div>
                     )}
                   </div>
@@ -143,11 +145,11 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
       <div className="flex items-center justify-center gap-4 sm:gap-6 pt-2 border-t border-border/30">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary" />
-          <span className="text-xs sm:text-sm text-muted-foreground">Study Time</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">{t('summary.totalStudyTime')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-workout" />
-          <span className="text-xs sm:text-sm text-muted-foreground">Workout Time</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">{t('summary.totalWorkoutTime')}</span>
         </div>
       </div>
     </div>

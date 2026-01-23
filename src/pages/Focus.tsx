@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Settings, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -17,6 +18,7 @@ import ProgressRing from '@/components/studyflow/ProgressRing';
 import SessionControls from '@/components/studyflow/SessionControls';
 
 const Focus = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     settings,
@@ -103,8 +105,8 @@ const Focus = () => {
   };
   
   const displayMessage = sessionStatus === 'paused' 
-    ? 'Paused' 
-    : (settings.customFocusMessage || 'Stay focused');
+    ? t('focus.paused') 
+    : (settings.customFocusMessage || t('focus.stayFocused'));
   
   const progress = totalTime > 0 ? ((totalTime - timeRemaining) / totalTime) * 100 : 0;
   
@@ -131,7 +133,7 @@ const Focus = () => {
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</p>
+              <p>{theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}</p>
             </TooltipContent>
           </Tooltip>
         )}
@@ -151,16 +153,16 @@ const Focus = () => {
               </PopoverTrigger>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Settings</p>
+              <p>{t('common.settings')}</p>
             </TooltipContent>
           </Tooltip>
           <PopoverContent className="w-[calc(100vw-2rem)] sm:w-72 max-w-sm" align="end">
             <div className="space-y-5">
               {/* Color Theme Section */}
               <div>
-                <h4 className="font-medium text-sm mb-1">Color Theme</h4>
+                <h4 className="font-medium text-sm mb-1">{t('focus.primaryColor')}</h4>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Choose your preferred focus color
+                  {t('focus.primaryColorDescription')}
                 </p>
                 <div className="grid grid-cols-5 gap-3">
                   {(Object.keys(COLOR_THEMES) as PrimaryColorTheme[]).map((theme) => {
@@ -193,29 +195,29 @@ const Focus = () => {
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  Selected: <span className="font-medium text-foreground">{COLOR_THEMES[currentTheme].name}</span>
+                  {t('focus.selected')} <span className="font-medium text-foreground">{COLOR_THEMES[currentTheme].name}</span>
                 </p>
               </div>
               
               {/* Custom Message Section */}
               <div className="pt-3 border-t">
                 <Label htmlFor="custom-message" className="text-sm font-medium mb-2 block">
-                  Custom Message
+                  {t('focus.customMessage')}
                 </Label>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Set a personalized message to display during focus sessions
+                  {t('focus.customMessageDescription')}
                 </p>
                 <Input
                   id="custom-message"
                   type="text"
                   value={customMessage}
                   onChange={(e) => handleMessageChange(e.target.value)}
-                  placeholder="Stay focused"
+                  placeholder={t('focus.stayFocused')}
                   maxLength={50}
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {customMessage.length}/50 characters
+                  {customMessage.length}/50 {t('focus.characters')}
                 </p>
               </div>
               
@@ -224,10 +226,10 @@ const Focus = () => {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="sound-toggle" className="text-sm font-medium">
-                      Sound Notification
+                      {t('focus.soundNotification')}
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      Play beep sound when session completes
+                      {t('focus.soundNotificationDescription')}
                     </p>
                   </div>
                   <Switch
@@ -275,7 +277,7 @@ const Focus = () => {
           {/* Motivational text */}
           <div className="text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
             <p className="text-muted-foreground text-sm">
-              Deep work in progress. Your workout awaits after this session.
+              {t('focus.deepWorkInProgress')}
             </p>
           </div>
         </div>

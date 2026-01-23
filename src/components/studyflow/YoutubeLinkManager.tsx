@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Check, ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   onDelete,
   workoutMinutes,
 }) => {
+  const { t } = useTranslation();
   const [newUrl, setNewUrl] = useState('');
   
   // Get default video URLs for comparison
@@ -215,7 +217,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
 
   const handleDelete = async (id: string) => {
     // Confirm before deleting
-    if (window.confirm('Are you sure you want to delete this video?')) {
+    if (window.confirm(t('youtube.delete'))) {
       try {
         await onDelete(id);
       } catch (error) {
@@ -227,7 +229,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="font-medium text-foreground text-sm sm:text-base">Workout Videos</h3>
+        <h3 className="font-medium text-foreground text-sm sm:text-base">{t('youtube.workoutVideos')}</h3>
         <Button
           variant="ghost"
           size="sm"
@@ -235,8 +237,8 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           className="text-workout hover:text-workout-glow touch-manipulation h-9 sm:h-10"
         >
           <Plus className="w-4 h-4 mr-1" />
-          <span className="hidden sm:inline">Add Video</span>
-          <span className="sm:hidden">Add</span>
+          <span className="hidden sm:inline">{t('youtube.addVideo')}</span>
+          <span className="sm:hidden">{t('youtube.add')}</span>
         </Button>
       </div>
       
@@ -244,7 +246,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
         <div className="space-y-3 p-3 sm:p-4 bg-muted rounded-lg animate-slide-up">
           <div className="space-y-2">
             <Label htmlFor="duration-select" className="text-sm font-medium">
-              Duration (required) *
+              {t('youtube.selectDuration')} *
             </Label>
             <Select
               value={selectedDuration}
@@ -252,12 +254,12 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
               required
             >
               <SelectTrigger id="duration-select" className="bg-background">
-                <SelectValue placeholder="Select duration" />
+                <SelectValue placeholder={t('youtube.selectDuration')} />
               </SelectTrigger>
               <SelectContent>
                 {durationOptions.map((duration) => (
                   <SelectItem key={duration} value={duration.toString()}>
-                    {duration} Min
+                    {duration} {t('youtube.min')}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -266,7 +268,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           
           <div className="space-y-2">
             <Label htmlFor="youtube-url" className="text-sm font-medium">
-              YouTube URL *
+              {t('youtube.videoUrl')} *
             </Label>
             <Input
               id="youtube-url"
@@ -280,11 +282,11 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           
           <div className="space-y-2">
             <Label htmlFor="video-title" className="text-sm font-medium">
-              Title (optional)
+              {t('youtube.videoTitle')} ({t('youtube.optional')})
             </Label>
             <Input
               id="video-title"
-              placeholder="Video title (duration will be added automatically)"
+              placeholder={t('youtube.videoTitle')}
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               className="bg-background"
@@ -297,7 +299,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
               disabled={!newUrl || !extractVideoId(newUrl) || !selectedDuration || isProcessing}
               className="bg-workout hover:bg-workout-glow text-workout-foreground h-10 sm:h-11 touch-manipulation flex-1"
             >
-              {isProcessing ? 'Adding...' : 'Add'}
+              {isProcessing ? t('youtube.add') + '...' : t('youtube.add')}
             </Button>
             <Button 
               variant="ghost" 
@@ -309,7 +311,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
               }}
               className="h-10 sm:h-11 touch-manipulation"
             >
-              Cancel
+              {t('youtube.cancel')}
             </Button>
           </div>
         </div>
@@ -318,14 +320,13 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       <div className="space-y-2">
         {filteredLinks.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-4 space-y-2">
-            <p>No videos found for {workoutMinutes} min workout.</p>
-            <p className="text-xs">Please add {workoutMinutes} min workout videos (recommended: 3 different videos).</p>
+            <p>{t('youtube.noVideos', { duration: workoutMinutes })}</p>
           </div>
         )}
         {filteredLinks.length > 0 && filteredLinks.length < 3 && 
          filteredLinks.every(link => !defaultVideoUrls.has(link.url)) && (
           <div className="text-xs text-muted-foreground text-center py-2 bg-muted/50 rounded-lg">
-            <p>Showing {filteredLinks.length} custom {workoutMinutes} min video(s). Add more for variety!</p>
+            <p>{t('youtube.showingCustomVideos', { count: filteredLinks.length, duration: workoutMinutes })}</p>
           </div>
         )}
         {filteredLinks.map((link) => (

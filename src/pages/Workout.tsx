@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import SessionControls from '@/components/studyflow/SessionControls';
 import YoutubeEmbedPlayer from '@/components/studyflow/YoutubeEmbedPlayer';
 
 const Workout = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     sessionStatus,
@@ -39,7 +41,7 @@ const Workout = () => {
   
   const progress = totalTime > 0 ? ((totalTime - timeRemaining) / totalTime) * 100 : 0;
   const workoutUrl = currentWorkoutVideo?.url || '';
-  const videoTitle = currentWorkoutVideo?.title || 'Workout Video';
+  const videoTitle = currentWorkoutVideo?.title || t('workout.standUp');
   
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -52,7 +54,7 @@ const Workout = () => {
           <div className="bg-workout text-workout-foreground rounded-xl p-3 sm:p-4 flex items-center gap-2 sm:gap-3 animate-pulse-slow shadow-glow-workout">
             <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-base sm:text-lg truncate">Stand up and move now!</p>
+              <p className="font-bold text-base sm:text-lg truncate">{t('workout.standUp')}</p>
               <p className="text-xs sm:text-sm opacity-90 truncate">{videoTitle}</p>
             </div>
           </div>
@@ -65,7 +67,7 @@ const Workout = () => {
           {/* YouTube Player */}
           {workoutUrl && (
             <div className="animate-slide-up">
-              <YoutubeEmbedPlayer url={workoutUrl} />
+              <YoutubeEmbedPlayer url={workoutUrl} sessionStatus={sessionStatus} />
               
               <div className="mt-3 flex justify-center">
                 <Button
@@ -75,7 +77,7 @@ const Workout = () => {
                   className="gap-2"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Open in YouTube
+                  {t('workout.openInYouTube')}
                 </Button>
               </div>
             </div>
@@ -108,8 +110,8 @@ const Workout = () => {
           {/* Info */}
           <p className="text-center text-sm text-muted-foreground animate-fade-in">
             {sessionStatus === 'paused' 
-              ? 'Workout paused' 
-              : 'Keep moving! Next focus session coming up.'
+              ? t('workout.workoutPaused') 
+              : t('workout.keepMoving')
             }
           </p>
         </div>

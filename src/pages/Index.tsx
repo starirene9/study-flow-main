@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Play, Brain, Dumbbell, Zap, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -10,11 +11,13 @@ import SliderTimePicker from '@/components/studyflow/SliderTimePicker';
 import YoutubeLinkManager from '@/components/studyflow/YoutubeLinkManager';
 import TodayMiniSummary from '@/components/studyflow/TodayMiniSummary';
 import ThemeToggle from '@/components/ThemeToggle';
+import LanguageToggle from '@/components/LanguageToggle';
 import { FOCUS_PRESETS, WORKOUT_PRESETS, FOCUS_PRESETS_TEST, WORKOUT_PRESETS_TEST, IS_TEST_MODE } from '@/types/studyflow';
 import type { DailySummary } from '@/types/studyflow';
 import { resetToDefaultColor } from '@/lib/colorTheme';
 
 const Index = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
@@ -83,7 +86,7 @@ const Index = () => {
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg sm:text-xl font-bold truncate">StudyFlow</h1>
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                  <p className="text-xs text-muted-foreground whitespace-nowrap">Focus. Move. Repeat.</p>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap">{t('index.tagline')}</p>
                   {user?.email && (
                     <>
                       <span className="text-xs text-muted-foreground hidden sm:inline">•</span>
@@ -109,10 +112,11 @@ const Index = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Sign Out</p>
+                    <p>{t('common.signOut')}</p>
                   </TooltipContent>
                 </Tooltip>
               )}
+              <LanguageToggle />
               <ThemeToggle />
             </div>
           </div>
@@ -131,7 +135,7 @@ const Index = () => {
                 onClick={() => navigate('/summary')}
                 className="text-muted-foreground hover:text-foreground"
               >
-                View Full Summary →
+                {t('index.viewFullSummary')}
               </Button>
             </div>
           </section>
@@ -141,10 +145,10 @@ const Index = () => {
         <section className="space-y-3 sm:space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center gap-2 flex-wrap">
             <Brain className="w-5 h-5 text-primary flex-shrink-0" />
-            <h2 className="text-base sm:text-lg font-semibold">Focus Time</h2>
+            <h2 className="text-base sm:text-lg font-semibold">{t('index.focusTime')}</h2>
             {IS_TEST_MODE && (
               <span className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-full font-medium">
-                TEST MODE
+                {t('index.testMode')}
               </span>
             )}
           </div>
@@ -157,11 +161,11 @@ const Index = () => {
               value={settings.focusMinutes}
               onChange={(value) => updateSettings({ focusMinutes: value })}
               variant="focus"
-              label="Duration"
+              label={t('index.duration')}
             />
             
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Quick Select</p>
+              <p className="text-sm text-muted-foreground">{t('index.quickSelect')}</p>
               <TimePresetButtons
                 options={focusPresets}
                 selected={settings.focusMinutes}
@@ -176,7 +180,7 @@ const Index = () => {
         <section className="space-y-3 sm:space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center gap-2">
             <Dumbbell className="w-5 h-5 text-workout flex-shrink-0" />
-            <h2 className="text-base sm:text-lg font-semibold">Workout Time</h2>
+            <h2 className="text-base sm:text-lg font-semibold">{t('index.workoutTime')}</h2>
           </div>
           
           <div className="glass-card rounded-xl p-4 sm:p-5 space-y-4 sm:space-y-5">
@@ -187,11 +191,11 @@ const Index = () => {
               value={settings.workoutMinutes}
               onChange={(value) => updateSettings({ workoutMinutes: value })}
               variant="workout"
-              label="Duration"
+              label={t('index.duration')}
             />
             
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Quick Select</p>
+              <p className="text-sm text-muted-foreground">{t('index.quickSelect')}</p>
               <TimePresetButtons
                 options={workoutPresets}
                 selected={settings.workoutMinutes}
@@ -224,17 +228,17 @@ const Index = () => {
             className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-primary to-workout hover:from-primary-glow hover:to-workout-glow shadow-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
           >
             <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            Start Cycle
+            {t('index.startCycle')}
           </Button>
           
           {!hasActiveVideo && (
             <p className="text-center text-sm text-muted-foreground mt-3">
-              Select a workout video to start
+              {t('index.selectWorkoutVideo')}
             </p>
           )}
           
           <p className="text-center text-xs text-muted-foreground mt-4">
-            {settings.focusMinutes} min focus → {settings.workoutMinutes} min workout → repeat
+            {t('index.cycleDescription', { focus: settings.focusMinutes, workout: settings.workoutMinutes })}
           </p>
         </section>
       </main>

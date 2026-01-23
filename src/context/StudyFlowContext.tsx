@@ -248,7 +248,9 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   
   // Log session completion
   const logSession = useCallback(async (type: SessionType, startTime: Date, endTime: Date, videoUrl?: string, isCompleted: boolean = true) => {
-    const durationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / 60000);
+    // Calculate duration in seconds, then convert to minutes with decimal precision
+    const durationSeconds = (endTime.getTime() - startTime.getTime()) / 1000;
+    const durationMinutes = durationSeconds / 60; // Keep decimal precision for seconds
     const log = await saveSessionLog({
       sessionDate: getTodayDate(),
       type,
@@ -346,17 +348,15 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
   
   const stopSession = useCallback(async () => {
-    // Log partial session
+    // Log partial session with second-level precision
     if (sessionStartRef.current) {
       const endTime = new Date();
       const elapsed = (endTime.getTime() - sessionStartRef.current.getTime()) / 1000;
-      const sessionDuration = currentSessionType === 'FOCUS' 
-        ? settings.focusMinutes * 60 
-        : settings.workoutMinutes * 60;
       
-      // Only log if significant time passed (at least 1 minute)
-      if (elapsed >= 60) {
-        await logSession(currentSessionType, sessionStartRef.current, endTime);
+      // Log any session that has elapsed time (even less than 1 minute)
+      if (elapsed > 0) {
+        const videoUrl = currentSessionType === 'WORKOUT' ? currentWorkoutVideo?.url : undefined;
+        await logSession(currentSessionType, sessionStartRef.current, endTime, videoUrl, false);
       }
     }
     
@@ -364,7 +364,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTimeRemaining(0);
     sessionStartRef.current = null;
     navigate('/summary');
-  }, [currentSessionType, settings, logSession, navigate]);
+  }, [currentSessionType, currentWorkoutVideo, logSession, navigate]);
   
   // Calculate daily summary
   const getDailySummary = useCallback(async (date?: string): Promise<DailySummary> => {

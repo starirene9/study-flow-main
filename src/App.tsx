@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { useTranslation } from "react-i18next";
 import { StudyFlowProvider } from "@/context/StudyFlowContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Index from "./pages/Index";
@@ -16,12 +17,13 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   const { user, isAuthLoading } = useAuth();
 
   if (isAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Loading your StudyFlow workspace...</p>
+        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
       </div>
     );
   }

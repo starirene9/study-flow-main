@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Brain, Dumbbell } from 'lucide-react';
 import { SessionType } from '@/types/studyflow';
@@ -9,6 +10,7 @@ interface SessionHeaderProps {
 }
 
 const SessionHeader: React.FC<SessionHeaderProps> = ({ cycleCount, sessionType }) => {
+  const { t } = useTranslation();
   const isFocus = sessionType === 'FOCUS';
   
   return (
@@ -26,11 +28,11 @@ const SessionHeader: React.FC<SessionHeaderProps> = ({ cycleCount, sessionType }
         ) : (
           <Dumbbell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         )}
-        <span>{isFocus ? 'Focus Session' : 'Workout Session'}</span>
+        <span>{isFocus ? t('session.focusSession') : t('session.workoutSession')}</span>
       </div>
       
       <p className="text-muted-foreground text-xs sm:text-sm">
-        Cycle {cycleCount + 1}
+        {t('session.cycle')} {cycleCount + 1}
       </p>
     </div>
   );

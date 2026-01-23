@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Home, Brain, Dumbbell, Trophy, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStudyFlow } from '@/context/StudyFlowContext';
 import HourlyTimelineGrid from '@/components/studyflow/HourlyTimelineGrid';
 import ThemeToggle from '@/components/ThemeToggle';
+import LanguageToggle from '@/components/LanguageToggle';
 import type { DailySummary } from '@/types/studyflow';
 
 const Summary = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { getDailySummary } = useStudyFlow();
   
@@ -29,15 +32,28 @@ const Summary = () => {
   }, [getDailySummary]);
   
   const formatTime = (minutes: number) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    // Handle decimal minutes (for second-level precision)
+    const totalSeconds = Math.round(minutes * 60);
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    
     if (hrs > 0) {
+      if (secs > 0) {
+        return `${hrs}h ${mins}m ${secs}s`;
+      }
       return `${hrs}h ${mins}m`;
     }
-    return `${mins} min`;
+    if (mins > 0) {
+      if (secs > 0) {
+        return `${mins}m ${secs}s`;
+      }
+      return `${mins}m`;
+    }
+    return `${secs}s`;
   };
   
-  const today = new Date().toLocaleDateString('en-US', {
+  const today = new Date().toLocaleDateString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -51,9 +67,10 @@ const Summary = () => {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              <h1 className="text-base sm:text-lg font-semibold">Daily Summary</h1>
+              <h1 className="text-base sm:text-lg font-semibold">{t('summary.dailySummary')}</h1>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              <LanguageToggle />
               <ThemeToggle />
               <Button
                 variant="ghost"
@@ -84,7 +101,7 @@ const Summary = () => {
             <p className="text-2xl sm:text-3xl font-bold text-primary mb-1">
               {formatTime(summary.totalFocusMinutes)}
             </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">Total Study Time</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t('summary.totalStudyTime')}</p>
           </div>
           
           {/* Workout Card */}
@@ -95,13 +112,13 @@ const Summary = () => {
             <p className="text-2xl sm:text-3xl font-bold text-workout mb-1">
               {formatTime(summary.totalWorkoutMinutes)}
             </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">Total Workout Time</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t('summary.totalWorkoutTime')}</p>
           </div>
         </div>
         
         {/* Hourly Timeline */}
         <section className="space-y-3 sm:space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <h2 className="text-base sm:text-lg font-semibold text-center">Today's Timeline</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-center">{t('summary.todayTimeline')}</h2>
           <div className="glass-card rounded-xl p-3 sm:p-5 overflow-x-auto">
             <HourlyTimelineGrid buckets={summary.hourlyBuckets} />
           </div>
@@ -114,7 +131,7 @@ const Summary = () => {
             size="lg"
             className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-primary to-workout hover:from-primary-glow hover:to-workout-glow touch-manipulation"
           >
-            Start New Cycle
+            {t('summary.startNewCycle')}
           </Button>
         </div>
         
@@ -124,9 +141,9 @@ const Summary = () => {
             <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
               <Brain className="w-10 h-10 text-muted-foreground" />
             </div>
-            <p className="text-lg font-medium mb-2">No sessions yet</p>
+            <p className="text-lg font-medium mb-2">{t('summary.noSessions')}</p>
             <p className="text-muted-foreground">
-              Start your first focus cycle to see your progress here
+              {t('summary.startFirstCycle')}
             </p>
           </div>
         )}

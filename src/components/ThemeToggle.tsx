@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTheme } from 'next-themes';
 
 const ThemeToggle: React.FC = () => {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
@@ -14,7 +16,7 @@ const ThemeToggle: React.FC = () => {
   }, []);
 
   // 현재 테마에 따라 반대 모드의 이름을 표시
-  const tooltipText = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  const tooltipText = theme === 'dark' ? t('common.lightMode') : t('common.darkMode');
 
   if (!mounted) {
     return (
@@ -25,7 +27,7 @@ const ThemeToggle: React.FC = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Dark Mode</p>
+          <p>{t('common.darkMode')}</p>
         </TooltipContent>
       </Tooltip>
     );
