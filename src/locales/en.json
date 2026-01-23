@@ -26,7 +26,6 @@
     "workoutTime": "Workout Time",
     "duration": "Duration",
     "quickSelect": "Quick Select",
-    "testMode": "TEST MODE",
     "startCycle": "Start Cycle",
     "selectWorkoutVideo": "Select a workout video to start",
     "cycleDescription": "{{focus}} min focus → {{workout}} min workout → repeat"

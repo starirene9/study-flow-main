@@ -26,7 +26,6 @@
     "workoutTime": "운동 시간",
     "duration": "시간",
     "quickSelect": "빠른 선택",
-    "testMode": "테스트 모드",
     "startCycle": "사이클 시작",
     "selectWorkoutVideo": "운동 영상을 선택하여 시작하세요",
     "cycleDescription": "{{focus}}분 집중 → {{workout}}분 운동 → 반복"

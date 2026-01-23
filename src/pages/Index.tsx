@@ -12,7 +12,7 @@ import YoutubeLinkManager from '@/components/studyflow/YoutubeLinkManager';
 import TodayMiniSummary from '@/components/studyflow/TodayMiniSummary';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageToggle from '@/components/LanguageToggle';
-import { FOCUS_PRESETS, WORKOUT_PRESETS, FOCUS_PRESETS_TEST, WORKOUT_PRESETS_TEST, IS_TEST_MODE } from '@/types/studyflow';
+import { FOCUS_PRESETS, WORKOUT_PRESETS } from '@/types/studyflow';
 import type { DailySummary } from '@/types/studyflow';
 import { resetToDefaultColor } from '@/lib/colorTheme';
 
@@ -21,13 +21,13 @@ const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
-  // 테스트 모드에 따라 프리셋과 최소값 선택
-  const focusPresets = IS_TEST_MODE ? FOCUS_PRESETS_TEST : FOCUS_PRESETS;
-  const workoutPresets = IS_TEST_MODE ? WORKOUT_PRESETS_TEST : WORKOUT_PRESETS;
-  const focusMin = IS_TEST_MODE ? 1 : 30;
-  const workoutMin = IS_TEST_MODE ? 3 : 10;
-  const focusStep = IS_TEST_MODE ? 1 : 5;
-  const workoutStep = IS_TEST_MODE ? 1 : 5;
+  // 프리셋과 최소값 설정
+  const focusPresets = FOCUS_PRESETS;
+  const workoutPresets = WORKOUT_PRESETS;
+  const focusMin = 25;
+  const workoutMin = 5;
+  const focusStep = 5;
+  const workoutStep = 5;
   const {
     settings,
     updateSettings,
@@ -146,11 +146,6 @@ const Index = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <Brain className="w-5 h-5 text-primary flex-shrink-0" />
             <h2 className="text-base sm:text-lg font-semibold">{t('index.focusTime')}</h2>
-            {IS_TEST_MODE && (
-              <span className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-full font-medium">
-                {t('index.testMode')}
-              </span>
-            )}
           </div>
           
           <div className="glass-card rounded-xl p-4 sm:p-5 space-y-4 sm:space-y-5">
