@@ -24,7 +24,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
   const formatHour = (hour: number) => {
     const period = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour} ${period}`;
+    return `${displayHour}${period}`;
   };
   
   const getBarHeight = (minutes: number) => {
@@ -118,7 +118,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                 
                 {/* X-axis label (Hour) */}
                 <div className={cn(
-                  'text-xs sm:text-sm font-medium mt-1',
+                  'text-[10px] sm:text-xs italic mt-1',
                   isCurrentHour ? 'text-foreground' : 'text-muted-foreground'
                 )}>
                   {formatHour(bucket.hour)}
