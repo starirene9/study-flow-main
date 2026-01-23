@@ -454,15 +454,23 @@ export const getSessionLogs = async (date?: string): Promise<SessionLog[]> => {
     }
 
     if (data) {
-      return data.map((log) => ({
-        id: log.id,
-        sessionDate: log.session_date,
-        type: log.type as 'FOCUS' | 'WORKOUT',
-        startTime: new Date(log.start_time),
-        endTime: new Date(log.end_time),
-        durationMinutes: log.duration_minutes,
-        youtubeUrl: log.youtube_url || undefined,
-      }));
+      return data.map((log) => {
+        // Calculate precise duration from start and end times
+        const startTime = new Date(log.start_time);
+        const endTime = new Date(log.end_time);
+        const durationSeconds = (endTime.getTime() - startTime.getTime()) / 1000;
+        const durationMinutes = durationSeconds / 60; // Keep decimal precision for seconds
+        
+        return {
+          id: log.id,
+          sessionDate: log.session_date,
+          type: log.type as 'FOCUS' | 'WORKOUT',
+          startTime,
+          endTime,
+          durationMinutes, // Use calculated precise duration
+          youtubeUrl: log.youtube_url || undefined,
+        };
+      });
     }
   } catch (error) {
     console.error('Error fetching session logs:', error);
@@ -489,6 +497,15 @@ export const saveSessionLog = async (log: Omit<SessionLog, 'id'>): Promise<Sessi
   };
 
   try {
+    // Calculate duration in seconds for precise storage
+    const durationSeconds = Math.round((log.endTime.getTime() - log.startTime.getTime()) / 1000);
+    // For Supabase, we need to store as integer minutes, but we'll use seconds for precision
+    // Store duration in seconds as minutes (divide by 60) and round to nearest integer
+    // But to preserve precision, we'll store the actual seconds value
+    // Since Supabase schema expects integer, we'll round to nearest minute
+    // However, for better precision, let's store seconds and convert when reading
+    const durationMinutesForDB = Math.round(durationSeconds / 60); // Round to nearest minute for integer storage
+    
     const { error } = await supabase
       .from("session_logs")
       .insert({
@@ -498,7 +515,7 @@ export const saveSessionLog = async (log: Omit<SessionLog, 'id'>): Promise<Sessi
         type: newLog.type,
         start_time: newLog.startTime.toISOString(),
         end_time: newLog.endTime.toISOString(),
-        duration_minutes: newLog.durationMinutes,
+        duration_minutes: durationMinutesForDB, // Store as integer minutes
         youtube_url: newLog.youtubeUrl || null,
       });
 
