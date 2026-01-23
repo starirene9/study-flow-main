@@ -213,13 +213,16 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       return;
     }
     
-    // Verify that the video duration matches the current workout duration
+    // Get video duration from title
     const videoDuration = extractDurationFromTitle(currentLink?.title || '');
-    if (videoDuration !== workoutMinutes) {
-      console.warn(`Video duration (${videoDuration} min) does not match workout duration (${workoutMinutes} min)`);
-      // Don't activate if duration doesn't match
+    if (!videoDuration) {
+      console.warn('Cannot extract duration from video title:', currentLink?.title);
       return;
     }
+    
+    // If video duration doesn't match current workout duration, 
+    // the activateYoutubeLink function will automatically update workout time to match
+    // No need to prevent activation here
     
     // Optimistically update UI immediately without showing disabled state
     // Call onActivate in background without blocking UI

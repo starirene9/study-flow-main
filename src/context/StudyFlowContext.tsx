@@ -266,10 +266,11 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       }
       
-      // Ensure only one link is active and matches current workout duration
+      // Ensure only one link is active - the one that was clicked
+      // The workout duration has been automatically updated to match the video duration
       const normalizedLinks = uniqueLinks.map(link => {
         const videoDuration = extractDurationFromTitle(link.title);
-        // Only activate if it matches the current workout duration
+        // Activate the clicked link (workout duration has been updated to match)
         const shouldBeActive = link.id === id && videoDuration === updatedSettings.workoutMinutes;
         return {
           ...link,
@@ -309,10 +310,11 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       }
       
-      // Ensure only clicked link is active and matches current workout duration
+      // Ensure only clicked link is active - the one that was clicked
+      // The workout duration has been automatically updated to match the video duration
       const normalizedLinks = uniqueLinks.map(link => {
         const videoDuration = extractDurationFromTitle(link.title);
-        // Only activate if it matches the current workout duration
+        // Activate the clicked link (workout duration has been updated to match)
         const shouldBeActive = link.id === id && videoDuration === updatedSettings.workoutMinutes;
         return {
           ...link,

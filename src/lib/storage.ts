@@ -378,12 +378,21 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
       return;
     }
 
-    // Verify that the video duration matches the current workout duration
-    const settings = await getSettings();
+    // Get video duration from title
     const videoDuration = extractDurationFromTitle(linkToActivate.title);
+    if (!videoDuration) {
+      console.error('Cannot extract duration from video title:', linkToActivate.title);
+      throw new Error('Cannot determine video duration from title');
+    }
+
+    // Get current settings
+    const settings = await getSettings();
+    
+    // If video duration doesn't match current workout duration, update workout duration to match video
     if (videoDuration !== settings.workoutMinutes) {
-      console.error(`Cannot activate video: duration (${videoDuration} min) does not match workout duration (${settings.workoutMinutes} min)`);
-      throw new Error(`Video duration (${videoDuration} min) does not match workout duration (${settings.workoutMinutes} min)`);
+      console.log(`Video duration (${videoDuration} min) doesn't match workout duration (${settings.workoutMinutes} min). Updating workout duration to ${videoDuration} min.`);
+      settings.workoutMinutes = videoDuration;
+      await saveSettings(settings);
     }
 
     // 사용자가 추가한 링크인지 확인 (기본 링크는 ID가 'default-'로 시작)
