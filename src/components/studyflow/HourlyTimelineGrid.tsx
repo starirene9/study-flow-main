@@ -37,12 +37,12 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
       {/* Y-axis labels */}
       <div className="flex items-end justify-between px-2">
         <div className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
-          <span>{maxValue}m</span>
+          <span>{Math.round(maxValue)}m</span>
           <span className="opacity-0">0m</span>
         </div>
         <div className="flex-1"></div>
         <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
-          <span>{Math.floor(maxValue / 2)}m</span>
+          <span>{Math.round(maxValue / 2)}m</span>
           <span>0m</span>
         </div>
       </div>
@@ -91,7 +91,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                     {/* Tooltip for Study */}
                     {bucket.focusMinutes > 0 && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                        <div className="font-medium">{t('summary.totalStudyTime')}: {bucket.focusMinutes}m</div>
+                        <div className="font-medium">{t('summary.totalStudyTime')}: {Math.round(bucket.focusMinutes * 60)}s</div>
                       </div>
                     )}
                   </div>
@@ -110,7 +110,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                     {/* Tooltip for Workout */}
                     {bucket.workoutMinutes > 0 && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                        <div className="font-medium">{t('summary.totalWorkoutTime')}: {bucket.workoutMinutes}m</div>
+                        <div className="font-medium">{t('summary.totalWorkoutTime')}: {Math.round(bucket.workoutMinutes * 60)}s</div>
                       </div>
                     )}
                   </div>
@@ -123,18 +123,6 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                 )}>
                   {formatHour(bucket.hour)}
                 </div>
-                
-                {/* Minutes labels below bars */}
-                {(bucket.focusMinutes > 0 || bucket.workoutMinutes > 0) && (
-                  <div className="text-[10px] text-muted-foreground/70 mt-0.5">
-                    {bucket.focusMinutes > 0 && (
-                      <div className="text-primary">{bucket.focusMinutes}m</div>
-                    )}
-                    {bucket.workoutMinutes > 0 && (
-                      <div className="text-workout">{bucket.workoutMinutes}m</div>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })}
