@@ -121,7 +121,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                   'text-[10px] sm:text-xs italic mt-1',
                   isCurrentHour ? 'text-foreground' : 'text-muted-foreground'
                 )}
-                style={{ transform: 'rotate(-15deg)', transformOrigin: 'center' }}
+                style={{ transform: 'rotate(35deg)', transformOrigin: 'center' }}
                 >
                   {formatHour(bucket.hour)}
                 </div>
