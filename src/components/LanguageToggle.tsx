@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const LanguageToggle: React.FC = () => {
   const { i18n, t } = useTranslation();
@@ -18,19 +18,21 @@ const LanguageToggle: React.FC = () => {
   };
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
+    <TooltipProvider>
+      <Tooltip>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 sm:h-10 sm:w-10 text-muted-foreground hover:text-foreground touch-manipulation"
-              aria-label={t('common.language')}
-            >
-              <Languages className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-          </DropdownMenuTrigger>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 sm:h-10 sm:w-10 text-muted-foreground hover:text-foreground touch-manipulation"
+                aria-label={t('common.language')}
+              >
+                <Languages className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => changeLanguage('en')}
@@ -46,11 +48,11 @@ const LanguageToggle: React.FC = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{t('common.language')}</p>
-      </TooltipContent>
-    </Tooltip>
+        <TooltipContent>
+          <p>{t('common.language')}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
