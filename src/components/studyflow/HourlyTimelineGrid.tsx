@@ -118,7 +118,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                 
                 {/* X-axis label (Hour) */}
                 <div className={cn(
-                  'text-[10px] sm:text-xs italic mt-1',
+                  'text-[9px] sm:text-[10px] italic mt-1',
                   isCurrentHour ? 'text-foreground' : 'text-muted-foreground'
                 )}
                 style={{ transform: 'rotate(35deg)', transformOrigin: 'center' }}
