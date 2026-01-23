@@ -49,13 +49,11 @@ export const getSettings = async (): Promise<UserSettings> => {
     if (data) {
       // Supabase에서 가져온 설정과 localStorage의 커스텀 설정 병합
       const localSettings = getSettingsLocal();
-      // Ensure workoutMinutes is at least 15 for new default
-      const workoutMinutes = data.workout_minutes < 15 ? 15 : data.workout_minutes;
-      // Ensure focusMinutes is at least 45 for new default
-      const focusMinutes = data.focus_minutes < 45 ? 45 : data.focus_minutes;
+      // Use the stored values directly - user has explicitly set these values
+      // Only enforce minimums for new users (when data doesn't exist)
       return {
-        focusMinutes: focusMinutes,
-        workoutMinutes: workoutMinutes,
+        focusMinutes: data.focus_minutes,
+        workoutMinutes: data.workout_minutes,
         activeYoutubeUrl: data.active_youtube_url,
         primaryColorTheme: localSettings.primaryColorTheme || 'blue',
         customFocusMessage: localSettings.customFocusMessage,
@@ -85,14 +83,8 @@ export const getSettingsLocal = (): UserSettings => {
   const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
   if (stored) {
     const parsed = JSON.parse(stored);
-    // Ensure workoutMinutes is at least 15 for new default
-    if (parsed.workoutMinutes !== undefined && parsed.workoutMinutes < 15) {
-      parsed.workoutMinutes = 15;
-    }
-    // Ensure focusMinutes is at least 45 for new default
-    if (parsed.focusMinutes !== undefined && parsed.focusMinutes < 45) {
-      parsed.focusMinutes = 45;
-    }
+    // Use stored values directly - user has explicitly set these values
+    // Only enforce minimums for new users (when no stored data exists)
     return parsed;
   }
   return {
