@@ -77,7 +77,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Settings
   const [settings, setSettings] = useState<UserSettings>({
     focusMinutes: 60,
-    workoutMinutes: 20,
+    workoutMinutes: 5,
     activeYoutubeUrl: null,
     soundEnabled: true,
   });

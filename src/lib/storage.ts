@@ -66,7 +66,7 @@ export const getSettings = async (): Promise<UserSettings> => {
   // Default settings
   const defaultSettings = {
     focusMinutes: 60,
-    workoutMinutes: 20,
+    workoutMinutes: 5,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
     primaryColorTheme: 'blue' as const,
     soundEnabled: true,
@@ -84,7 +84,7 @@ export const getSettingsLocal = (): UserSettings => {
   }
   return {
     focusMinutes: 60,
-    workoutMinutes: 20,
+    workoutMinutes: 5,
     activeYoutubeUrl: DEFAULT_YOUTUBE_LINKS[0].url,
     primaryColorTheme: 'blue' as const,
     soundEnabled: true,
