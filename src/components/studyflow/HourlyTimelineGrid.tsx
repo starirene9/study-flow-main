@@ -12,6 +12,18 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
   const currentHour = new Date().getHours();
   const maxMinutes = 60; // Maximum minutes per hour for scaling
   
+  // Format time to always show minutes and seconds when >= 60 seconds
+  const formatTime = (minutes: number) => {
+    const totalSeconds = Math.round(minutes * 60);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    
+    if (mins > 0) {
+      return `${mins}min ${secs}s`;
+    }
+    return `${secs}s`;
+  };
+  
   // Sort buckets by hour
   const sortedBuckets = [...buckets].sort((a, b) => a.hour - b.hour);
   
@@ -91,7 +103,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                     {/* Tooltip for Study */}
                     {bucket.focusMinutes > 0 && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                        <div className="font-medium">{t('summary.totalStudyTime')}: {Math.round(bucket.focusMinutes * 60)}s</div>
+                        <div className="font-medium">{t('summary.totalStudyTime')}: {formatTime(bucket.focusMinutes)}</div>
                       </div>
                     )}
                   </div>
@@ -110,7 +122,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
                     {/* Tooltip for Workout */}
                     {bucket.workoutMinutes > 0 && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-medium opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                        <div className="font-medium">{t('summary.totalWorkoutTime')}: {Math.round(bucket.workoutMinutes * 60)}s</div>
+                        <div className="font-medium">{t('summary.totalWorkoutTime')}: {formatTime(bucket.workoutMinutes)}</div>
                       </div>
                     )}
                   </div>
