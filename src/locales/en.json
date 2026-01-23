@@ -59,7 +59,10 @@
     "startNewCycle": "Start New Cycle",
     "noSessions": "No sessions yet",
     "startFirstCycle": "Start your first focus cycle to see your progress here",
-    "success": "Success!"
+    "success": "Success!",
+    "maxTime": "max",
+    "midTime": "mid",
+    "noTime": "none"
   },
   "auth": {
     "signInTitle": "Sign In",

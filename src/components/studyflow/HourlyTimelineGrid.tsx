@@ -15,14 +15,11 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
   // Sort buckets by hour
   const sortedBuckets = [...buckets].sort((a, b) => a.hour - b.hour);
   
-  // Find max value for scaling - use 60 minutes as max for consistency
-  // This makes it clear that Y-axis represents minutes per hour
+  // Find max value from actual collected data for scaling
   const maxValue = Math.max(
     ...sortedBuckets.map(b => Math.max(b.focusMinutes, b.workoutMinutes)),
-    1
+    1 // Minimum 1 to avoid division by zero
   );
-  // Use 60 minutes as the scale maximum to show "minutes per hour" clearly
-  const displayMax = 60;
   
   const formatHour = (hour: number) => {
     const period = hour >= 12 ? 'PM' : 'AM';
@@ -32,7 +29,7 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
   
   const getBarHeight = (minutes: number) => {
     if (minutes === 0) return 0;
-    return Math.max((minutes / displayMax) * 100, 2); // Minimum 2% for visibility
+    return Math.max((minutes / maxValue) * 100, 2); // Minimum 2% for visibility
   };
   
   return (
@@ -40,13 +37,13 @@ const HourlyTimelineGrid: React.FC<HourlyTimelineGridProps> = ({ buckets }) => {
       {/* Y-axis labels */}
       <div className="flex items-end justify-between px-2">
         <div className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
-          <span>{displayMax}m</span>
+          <span>{Math.round(maxValue)}m <span className="text-[10px] opacity-70">({t('summary.maxTime')})</span></span>
           <span className="opacity-0">0m</span>
         </div>
         <div className="flex-1"></div>
         <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
-          <span>{Math.round(displayMax / 2)}m</span>
-          <span>0m</span>
+          <span>{Math.round(maxValue / 2)}m <span className="text-[10px] opacity-70">({t('summary.midTime')})</span></span>
+          <span>0m <span className="text-[10px] opacity-70">({t('summary.noTime')})</span></span>
         </div>
       </div>
       

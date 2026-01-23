@@ -59,7 +59,10 @@
     "startNewCycle": "새 사이클 시작",
     "noSessions": "아직 세션이 없습니다",
     "startFirstCycle": "첫 번째 집중 사이클을 시작하여 여기서 진행 상황을 확인하세요",
-    "success": "성공!"
+    "success": "성공!",
+    "maxTime": "최대",
+    "midTime": "중간",
+    "noTime": "없음"
   },
   "auth": {
     "signInTitle": "로그인",
