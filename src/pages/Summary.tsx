@@ -25,7 +25,14 @@ const Summary = () => {
 
   useEffect(() => {
     const loadSummary = async () => {
+      // Add a small delay to ensure logs are saved before loading summary
+      await new Promise(resolve => setTimeout(resolve, 100));
       const data = await getDailySummary();
+      console.log('Summary loaded:', {
+        totalFocusMinutes: data.totalFocusMinutes,
+        totalWorkoutMinutes: data.totalWorkoutMinutes,
+        logsCount: data.hourlyBuckets.filter(b => b.focusMinutes > 0 || b.workoutMinutes > 0).length,
+      });
       setSummary(data);
     };
     loadSummary();

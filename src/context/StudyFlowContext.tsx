@@ -442,43 +442,64 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
   
   const stopSession = useCallback(async () => {
-    // Log partial session with second-level precision
-    if (sessionStartRef.current) {
+    // Calculate actual elapsed time using timeRemaining and totalTime
+    // This accounts for pause/resume and gives accurate study time
+    const actualElapsedSeconds = totalTime > 0 ? (totalTime - timeRemaining) : 0;
+    
+    console.log('Stop session:', {
+      type: currentSessionType,
+      totalTime,
+      timeRemaining,
+      actualElapsedSeconds,
+      actualElapsedMinutes: actualElapsedSeconds / 60,
+    });
+    
+    // Log any session that has elapsed time (even less than 1 minute)
+    if (sessionStartRef.current && actualElapsedSeconds > 0) {
       const endTime = new Date();
-      const elapsed = (endTime.getTime() - sessionStartRef.current.getTime()) / 1000;
+      // Calculate start time based on actual elapsed time
+      const startTime = new Date(endTime.getTime() - actualElapsedSeconds * 1000);
       
-      console.log('Stop session:', {
+      const videoUrl = currentSessionType === 'WORKOUT' ? currentWorkoutVideo?.url : undefined;
+      
+      console.log('Logging stopped session:', {
         type: currentSessionType,
-        elapsedSeconds: elapsed,
-        elapsedMinutes: elapsed / 60,
-        startTime: sessionStartRef.current,
-        endTime: endTime,
+        startTime,
+        endTime,
+        durationSeconds: actualElapsedSeconds,
+        durationMinutes: actualElapsedSeconds / 60,
       });
       
-      // Log any session that has elapsed time (even less than 1 minute)
-      if (elapsed > 0) {
-        const videoUrl = currentSessionType === 'WORKOUT' ? currentWorkoutVideo?.url : undefined;
-        await logSession(currentSessionType, sessionStartRef.current, endTime, videoUrl, false);
-        
-        // Wait a bit to ensure the log is saved and todayLogs is updated
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Refresh today's logs to ensure they're up to date
-        const updatedLogs = await getSessionLogs(getTodayDate());
-        console.log('Updated logs after stop:', updatedLogs);
-        setTodayLogs(updatedLogs);
-      } else {
-        console.warn('No elapsed time to log');
-      }
+      await logSession(currentSessionType, startTime, endTime, videoUrl, false);
+      
+      // Wait longer to ensure the log is saved to database
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Refresh today's logs to ensure they're up to date
+      const updatedLogs = await getSessionLogs(getTodayDate());
+      console.log('Updated logs after stop:', updatedLogs.map(l => ({
+        type: l.type,
+        durationMinutes: l.durationMinutes,
+        startTime: l.startTime,
+        endTime: l.endTime,
+      })));
+      setTodayLogs(updatedLogs);
     } else {
-      console.warn('No session start time found');
+      if (!sessionStartRef.current) {
+        console.warn('No session start time found');
+      }
+      if (actualElapsedSeconds <= 0) {
+        console.warn('No elapsed time to log:', actualElapsedSeconds);
+      }
     }
     
     setSessionStatus('stopped');
     setTimeRemaining(0);
     sessionStartRef.current = null;
+    
+    // Navigate after ensuring log is saved
     navigate('/summary');
-  }, [currentSessionType, currentWorkoutVideo, logSession, navigate]);
+  }, [currentSessionType, currentWorkoutVideo, logSession, navigate, totalTime, timeRemaining]);
   
   // Calculate daily summary
   const getDailySummary = useCallback(async (date?: string): Promise<DailySummary> => {
