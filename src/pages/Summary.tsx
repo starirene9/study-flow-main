@@ -46,17 +46,14 @@ const Summary = () => {
     const secs = totalSeconds % 60;
     
     if (hrs > 0) {
-      if (secs > 0) {
-        return `${hrs}h ${mins}m ${secs}s`;
-      }
-      return `${hrs}h ${mins}m`;
+      // Always show minutes and seconds when hours are present
+      return `${hrs}h ${mins}min ${secs}s`;
     }
+    // Always show minutes and seconds (even if 0 minutes)
     if (mins > 0) {
-      if (secs > 0) {
-        return `${mins}m ${secs}s`;
-      }
-      return `${mins}m`;
+      return `${mins}min ${secs}s`;
     }
+    // If less than 1 minute, show only seconds
     return `${secs}s`;
   };
   
