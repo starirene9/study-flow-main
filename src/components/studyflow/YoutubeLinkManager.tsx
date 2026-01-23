@@ -230,6 +230,43 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
   };
 
   const handleDelete = async (id: string) => {
+    // Check if deleting would leave less than 3 unique videos for this duration
+    const videosForDuration = filteredLinks.filter(link => {
+      const videoDuration = extractDurationFromTitle(link.title);
+      return videoDuration === workoutMinutes;
+    });
+    
+    // Count unique video IDs/URLs for this duration
+    const uniqueVideoIds = new Set<string>();
+    for (const link of videosForDuration) {
+      const videoId = extractVideoId(link.url);
+      if (videoId) {
+        uniqueVideoIds.add(videoId);
+      } else {
+        uniqueVideoIds.add(link.url.trim());
+      }
+    }
+    
+    // Get the video to delete
+    const linkToDelete = links.find(l => l.id === id);
+    if (!linkToDelete) return;
+    
+    const videoIdToDelete = extractVideoId(linkToDelete.url);
+    const identifierToDelete = videoIdToDelete || linkToDelete.url.trim();
+    
+    // Check if this is the only video with this ID/URL in the duration
+    const videosWithSameId = videosForDuration.filter(link => {
+      const videoId = extractVideoId(link.url);
+      const identifier = videoId || link.url.trim();
+      return identifier === identifierToDelete;
+    });
+    
+    // If this is the only unique video with this ID and we'd have less than 3 after deletion, prevent deletion
+    if (videosWithSameId.length === 1 && uniqueVideoIds.size <= 3) {
+      alert(t('youtube.minimumVideosRequired', { duration: workoutMinutes }) || `You must have at least 3 different videos for ${workoutMinutes} minutes. Cannot delete this video.`);
+      return;
+    }
+    
     // Confirm before deleting
     if (window.confirm(t('youtube.delete'))) {
       try {
@@ -335,14 +372,43 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
         {filteredLinks.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-4 space-y-2">
             <p>{t('youtube.noVideos', { duration: workoutMinutes })}</p>
+            <p className="text-xs text-destructive mt-2">{t('youtube.minimumVideosWarning', { duration: workoutMinutes })}</p>
           </div>
         )}
-        {filteredLinks.length > 0 && filteredLinks.length < 3 && 
-         filteredLinks.every(link => !defaultVideoUrls.has(link.url)) && (
-          <div className="text-xs text-muted-foreground text-center py-2 bg-muted/50 rounded-lg">
-            <p>{t('youtube.showingCustomVideos', { count: filteredLinks.length, duration: workoutMinutes })}</p>
-          </div>
-        )}
+        {(() => {
+          // Count unique video IDs/URLs for this duration
+          const uniqueVideoIds = new Set<string>();
+          for (const link of filteredLinks) {
+            const videoId = extractVideoId(link.url);
+            if (videoId) {
+              uniqueVideoIds.add(videoId);
+            } else {
+              uniqueVideoIds.add(link.url.trim());
+            }
+          }
+          
+          const uniqueCount = uniqueVideoIds.size;
+          
+          if (uniqueCount > 0 && uniqueCount < 3) {
+            return (
+              <div className="text-xs text-destructive text-center py-2 bg-destructive/10 rounded-lg border border-destructive/20">
+                <p className="font-medium">{t('youtube.minimumVideosWarning', { duration: workoutMinutes })}</p>
+                <p className="mt-1">{t('youtube.currentVideoCount', { count: uniqueCount, required: 3 })}</p>
+              </div>
+            );
+          }
+          
+          if (filteredLinks.length > 0 && filteredLinks.length < 3 && 
+              filteredLinks.every(link => !defaultVideoUrls.has(link.url))) {
+            return (
+              <div className="text-xs text-muted-foreground text-center py-2 bg-muted/50 rounded-lg">
+                <p>{t('youtube.showingCustomVideos', { count: filteredLinks.length, duration: workoutMinutes })}</p>
+              </div>
+            );
+          }
+          
+          return null;
+        })()}
         {filteredLinks.map((link) => (
             <div
             key={link.id}

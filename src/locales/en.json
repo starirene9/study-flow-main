@@ -97,7 +97,10 @@
     "noVideos": "No videos available for {{duration}} minutes",
     "min": "Min",
     "duplicateUrl": "This video URL already exists. Please add a different video.",
-    "addError": "Failed to add video. Please try again."
+    "addError": "Failed to add video. Please try again.",
+    "minimumVideosRequired": "You must have at least 3 different videos for {{duration}} minutes. Cannot delete this video.",
+    "minimumVideosWarning": "Warning: You need at least 3 different videos for {{duration}} minutes.",
+    "currentVideoCount": "Currently: {{count}} unique video(s). Required: {{required}}."
   },
   "session": {
     "cycle": "Cycle",

@@ -66,115 +66,130 @@ export const FOCUS_PRESETS = [25, 30, 45, 60, 75, 90] as const;
 export const WORKOUT_PRESETS = [5, 10, 15, 20, 30] as const;
 
 export const DEFAULT_YOUTUBE_LINKS: Omit<YoutubeLink, 'id' | 'createdAt'>[] = [
+  // 5 minute workouts (minimum 3 different videos)
   {
     title: '5 Min Morning Stretch',
     url: 'https://www.youtube.com/watch?v=4pKly2JojMw',
     isActive: true,
   },
   {
-    title: '7 Min Full Body Stretch',
-    url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
-    isActive: false,
-  },
-  // 5 minute workouts (3 videos)
-  {
     title: '5 Min Quick Stretch',
-    url: 'https://www.youtube.com/watch?v=4pKly2JojMw',
+    url: 'https://www.youtube.com/watch?v=l2ADeM1HD88',
     isActive: false,
   },
   {
     title: '5 Min Desk Break',
-    url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
+    url: 'https://www.youtube.com/watch?v=lXIKQMWcdLA',
     isActive: false,
   },
   {
     title: '5 Min Energy Boost',
-    url: 'https://www.youtube.com/watch?v=tAUf7aajBWE',
+    url: 'https://www.youtube.com/watch?v=zwSRF3QkG7Q',
     isActive: false,
   },
-  // 10 minute workouts (3 videos)
+  // 10 minute workouts (minimum 3 different videos)
   {
     title: '10 Min Desk Stretch',
-    url: 'https://www.youtube.com/watch?v=tAUf7aajBWE',
+    url: 'https://www.youtube.com/watch?v=PqqJBaE4srs',
     isActive: false,
   },
   {
     title: '10 Min Standing Stretch',
-    url: 'https://www.youtube.com/watch?v=L_xrDAtykMI',
+    url: 'https://www.youtube.com/watch?v=jaGmxOELPvE',
     isActive: false,
   },
   {
     title: '10 Min Full Body Workout',
-    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    url: 'https://www.youtube.com/watch?v=ZDuNYCd5ay0',
     isActive: false,
   },
   {
-    title: '12 Min Neck & Shoulder Relief',
-    url: 'https://www.youtube.com/watch?v=SedzswEwpPw',
+    title: '10 Min Core Strength',
+    url: 'https://www.youtube.com/watch?v=auaC_Ir4C3o',
     isActive: false,
   },
-  // 15 minute workouts (3 videos)
+  // 15 minute workouts (minimum 3 different videos)
   {
     title: '15 Min Full Body Mobility',
-    url: 'https://www.youtube.com/watch?v=Yzm3fA2HhkQ',
+    url: 'https://www.youtube.com/watch?v=-j9aak0bwo0',
     isActive: false,
   },
   {
     title: '15 Min HIIT Workout',
-    url: 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+    url: 'https://www.youtube.com/watch?v=OGPmzWHsnOQ',
     isActive: false,
   },
   {
     title: '15 Min Yoga Flow',
-    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
-    isActive: false,
-  },
-  // 20 minute workouts (3 videos)
-  {
-    title: '20 Min Yoga Flow',
-    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    url: 'https://www.youtube.com/watch?v=CamSXRh01EI',
     isActive: false,
   },
   {
-    title: '20 Min Cardio Workout',
-    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    title: '15 Min Low Impact HIIT',
+    url: 'https://www.youtube.com/watch?v=098s2SclfjQ',
+    isActive: false,
+  },
+  // 20 minute workouts (minimum 3 different videos)
+  {
+    title: '20 Min Full Body HIIT',
+    url: 'https://www.youtube.com/watch?v=SwfkF65vzXQ',
     isActive: false,
   },
   {
-    title: '20 Min Strength Training',
-    url: 'https://www.youtube.com/watch?v=Yzm3fA2HhkQ',
-    isActive: false,
-  },
-  // 25 minute workouts (3 videos)
-  {
-    title: '25 Min Full Body HIIT',
-    url: 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+    title: '20 Min HIIT Workout',
+    url: 'https://www.youtube.com/watch?v=YC3Vu4ZD6hQ',
     isActive: false,
   },
   {
-    title: '25 Min Cardio Blast',
-    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    title: '20 Min No Repeat Workout',
+    url: 'https://www.youtube.com/watch?v=rTC3-TltvbE',
     isActive: false,
   },
   {
-    title: '25 Min Strength & Cardio',
-    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    title: '20 Min Standing Arms & Abs',
+    url: 'https://www.youtube.com/watch?v=DagwbO8HBi4',
     isActive: false,
   },
-  // 30 minute workouts (3 videos)
+  // 25 minute workouts (minimum 3 different videos)
+  {
+    title: '25 Min Full Body Calisthenics',
+    url: 'https://www.youtube.com/watch?v=t1uZG3OhH4c',
+    isActive: false,
+  },
+  {
+    title: '25 Min Unilateral HIIT',
+    url: 'https://www.youtube.com/watch?v=mTKsxyHs2Jc',
+    isActive: false,
+  },
+  {
+    title: '25 Min Total Body Burn',
+    url: 'https://www.youtube.com/watch?v=TEuCYPrLdsA',
+    isActive: false,
+  },
+  {
+    title: '25 Min Full Body Strength',
+    url: 'https://www.youtube.com/watch?v=j8uNQi0FDS0',
+    isActive: false,
+  },
+  // 30 minute workouts (minimum 3 different videos)
   {
     title: '30 Min Full Body Workout',
-    url: 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+    url: 'https://www.youtube.com/watch?v=KjzbHCbrnWQ',
     isActive: false,
   },
   {
-    title: '30 Min HIIT Training',
-    url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    title: '30 Min Apartment Friendly',
+    url: 'https://www.youtube.com/watch?v=73NEi4HzHPs',
     isActive: false,
   },
   {
-    title: '30 Min Cardio & Strength',
-    url: 'https://www.youtube.com/watch?v=UItWltVZZmE',
+    title: '30 Min Bodyweight Strength',
+    url: 'https://www.youtube.com/watch?v=FmzcYWpzAS8',
+    isActive: false,
+  },
+  {
+    title: '30 Min HIIT with Weights',
+    url: 'https://www.youtube.com/watch?v=qciUTVwZUn4',
     isActive: false,
   },
 ];
