@@ -76,19 +76,19 @@ export const DEFAULT_YOUTUBE_LINKS: Omit<YoutubeLink, 'id' | 'createdAt'>[] = [
     url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
     isActive: false,
   },
-  // 3 minute workouts (3 videos - Shorts)
+  // 5 minute workouts (3 videos)
   {
-    title: '3 Min Quick Stretch',
+    title: '5 Min Quick Stretch',
     url: 'https://www.youtube.com/watch?v=4pKly2JojMw',
     isActive: false,
   },
   {
-    title: '3 Min Desk Break',
+    title: '5 Min Desk Break',
     url: 'https://www.youtube.com/watch?v=g_tea8ZNk5A',
     isActive: false,
   },
   {
-    title: '3 Min Energy Boost',
+    title: '5 Min Energy Boost',
     url: 'https://www.youtube.com/watch?v=tAUf7aajBWE',
     isActive: false,
   },
