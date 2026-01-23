@@ -331,6 +331,16 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // Calculate duration in seconds, then convert to minutes with decimal precision
     const durationSeconds = (endTime.getTime() - startTime.getTime()) / 1000;
     const durationMinutes = durationSeconds / 60; // Keep decimal precision for seconds
+    
+    console.log('Logging session:', {
+      type,
+      durationSeconds,
+      durationMinutes,
+      startTime,
+      endTime,
+      isCompleted,
+    });
+    
     const log = await saveSessionLog({
       sessionDate: getTodayDate(),
       type,
@@ -340,9 +350,13 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       youtubeUrl: type === 'WORKOUT' ? videoUrl : undefined,
       isCompleted,
     });
+    
+    console.log('Session log saved:', log);
+    
     setTodayLogs((prev) => [...prev, log]);
     // Refresh today's logs
     const updatedLogs = await getSessionLogs(getTodayDate());
+    console.log('All logs after save:', updatedLogs);
     setTodayLogs(updatedLogs);
   }, []);
   
@@ -433,11 +447,31 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const endTime = new Date();
       const elapsed = (endTime.getTime() - sessionStartRef.current.getTime()) / 1000;
       
+      console.log('Stop session:', {
+        type: currentSessionType,
+        elapsedSeconds: elapsed,
+        elapsedMinutes: elapsed / 60,
+        startTime: sessionStartRef.current,
+        endTime: endTime,
+      });
+      
       // Log any session that has elapsed time (even less than 1 minute)
       if (elapsed > 0) {
         const videoUrl = currentSessionType === 'WORKOUT' ? currentWorkoutVideo?.url : undefined;
         await logSession(currentSessionType, sessionStartRef.current, endTime, videoUrl, false);
+        
+        // Wait a bit to ensure the log is saved and todayLogs is updated
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Refresh today's logs to ensure they're up to date
+        const updatedLogs = await getSessionLogs(getTodayDate());
+        console.log('Updated logs after stop:', updatedLogs);
+        setTodayLogs(updatedLogs);
+      } else {
+        console.warn('No elapsed time to log');
       }
+    } else {
+      console.warn('No session start time found');
     }
     
     setSessionStatus('stopped');
@@ -449,7 +483,8 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Calculate daily summary
   const getDailySummary = useCallback(async (date?: string): Promise<DailySummary> => {
     const targetDate = date || getTodayDate();
-    const logs = date ? await getSessionLogs(date) : todayLogs;
+    // Always fetch fresh logs from storage to ensure accuracy
+    const logs = await getSessionLogs(targetDate);
     
     let totalFocusMinutes = 0;
     let totalWorkoutMinutes = 0;
