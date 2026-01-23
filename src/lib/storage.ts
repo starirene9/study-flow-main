@@ -159,16 +159,42 @@ export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
     // 기본 링크가 먼저 오고, 그 다음 사용자가 추가한 링크가 오도록 정렬
     const allLinks = [...defaultLinks, ...userAddedLinks];
     
+    // Remove duplicates by URL (keep the first occurrence, prefer default links)
+    const seenUrls = new Set<string>();
+    const seenVideoIds = new Set<string>();
+    const uniqueLinks: YoutubeLink[] = [];
+    
+    for (const link of allLinks) {
+      const normalizedUrl = link.url.trim();
+      const videoId = extractVideoId(normalizedUrl);
+      
+      // Check if URL or video ID already exists
+      const urlExists = seenUrls.has(normalizedUrl);
+      const videoIdExists = videoId && seenVideoIds.has(videoId);
+      
+      if (!urlExists && !videoIdExists) {
+        seenUrls.add(normalizedUrl);
+        if (videoId) {
+          seenVideoIds.add(videoId);
+        }
+        uniqueLinks.push(link);
+      } else {
+        // If duplicate found and it's a user-added link, we should remove it from database
+        // But for now, just skip it in the list
+        console.warn('Duplicate link detected and removed:', normalizedUrl);
+      }
+    }
+    
     // 활성 링크가 있으면 그 링크만 활성으로 설정
-    const activeLink = allLinks.find(link => link.isActive);
+    const activeLink = uniqueLinks.find(link => link.isActive);
     if (activeLink) {
-      return allLinks.map(link => ({
+      return uniqueLinks.map(link => ({
         ...link,
         isActive: link.id === activeLink.id,
       }));
     }
 
-    return allLinks;
+    return uniqueLinks;
   } catch (error) {
     console.error('Error fetching YouTube links:', error);
     // 에러 발생 시 기본 링크만 반환
@@ -186,10 +212,30 @@ export const getYoutubeLinksLocal = (): YoutubeLink[] => {
 
 export const saveYoutubeLinks = async (links: YoutubeLink[]): Promise<void> => {
   try {
+    // Remove duplicates before saving
+    const seenUrls = new Set<string>();
+    const seenVideoIds = new Set<string>();
+    const uniqueLinks: YoutubeLink[] = [];
+    
+    for (const link of links) {
+      const normalizedUrl = link.url.trim();
+      const videoId = extractVideoId(normalizedUrl);
+      const urlExists = seenUrls.has(normalizedUrl);
+      const videoIdExists = videoId && seenVideoIds.has(videoId);
+      
+      if (!urlExists && !videoIdExists) {
+        seenUrls.add(normalizedUrl);
+        if (videoId) {
+          seenVideoIds.add(videoId);
+        }
+        uniqueLinks.push(link);
+      }
+    }
+    
     // 기본 링크와 사용자가 추가한 링크를 구분
     // 기본 링크는 ID가 'default-'로 시작하거나 createdAt이 1970년 이전인 링크
     const defaultLinkIds = new Set(DEFAULT_YOUTUBE_LINKS.map(link => `default-${link.url}`));
-    const userAddedLinks = links.filter(
+    const userAddedLinks = uniqueLinks.filter(
       link => !defaultLinkIds.has(link.id) && link.createdAt.getTime() > 0
     );
 
@@ -230,9 +276,25 @@ export const saveYoutubeLinksLocal = (links: YoutubeLink[]): void => {
 };
 
 export const addYoutubeLink = async (url: string, title?: string): Promise<YoutubeLink> => {
+  // Check for duplicate URL (both in user-added links and default links)
+  const existingLinks = await getYoutubeLinks();
+  const normalizedUrl = url.trim();
+  const duplicateLink = existingLinks.find(link => {
+    const existingUrl = link.url.trim();
+    // Compare URLs directly and also by video ID
+    const existingVideoId = extractVideoId(existingUrl);
+    const newVideoId = extractVideoId(normalizedUrl);
+    return existingUrl === normalizedUrl || (existingVideoId && newVideoId && existingVideoId === newVideoId);
+  });
+
+  if (duplicateLink) {
+    console.warn('Duplicate YouTube link detected:', normalizedUrl);
+    throw new Error('This video URL already exists');
+  }
+
   const newLink: YoutubeLink = {
     id: generateId(),
-    url,
+    url: normalizedUrl,
     title: title || extractVideoTitle(url),
     isActive: false,
     createdAt: new Date(),
@@ -258,6 +320,10 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
     }
   } catch (error) {
     console.error('Error adding YouTube link:', error);
+    // Re-throw if it's a duplicate error
+    if (error instanceof Error && error.message === 'This video URL already exists') {
+      throw error;
+    }
     const links = await getYoutubeLinks();
     links.push(newLink);
     await saveYoutubeLinks(links);

@@ -95,7 +95,9 @@
     "openInYouTube": "YouTube에서 열기",
     "showingCustomVideos": "사용자 추가 {{duration}}분 영상 {{count}}개를 표시 중입니다. 더 다양하게 추가해보세요!",
     "noVideos": "{{duration}}분 영상이 없습니다",
-    "min": "분"
+    "min": "분",
+    "duplicateUrl": "이 영상 URL이 이미 존재합니다. 다른 영상을 추가해주세요.",
+    "addError": "영상 추가에 실패했습니다. 다시 시도해주세요."
   },
   "session": {
     "cycle": "사이클",

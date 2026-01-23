@@ -194,6 +194,12 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
         console.log('YoutubeLinkManager: State should be updated now');
       } catch (error) {
         console.error('Error adding video:', error);
+        // Show error message to user
+        if (error instanceof Error && error.message === 'This video URL already exists') {
+          alert(t('youtube.duplicateUrl') || 'This video URL already exists');
+        } else {
+          alert(t('youtube.addError') || 'Failed to add video. Please try again.');
+        }
       } finally {
         setIsProcessing(false);
       }

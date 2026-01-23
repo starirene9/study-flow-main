@@ -95,7 +95,9 @@
     "openInYouTube": "Open in YouTube",
     "showingCustomVideos": "Showing {{count}} custom {{duration}} min video(s). Add more for variety!",
     "noVideos": "No videos available for {{duration}} minutes",
-    "min": "Min"
+    "min": "Min",
+    "duplicateUrl": "This video URL already exists. Please add a different video.",
+    "addError": "Failed to add video. Please try again."
   },
   "session": {
     "cycle": "Cycle",

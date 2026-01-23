@@ -24,6 +24,7 @@ import {
   getRandomVideo,
   setCurrentUserId,
   extractDurationFromTitle,
+  extractVideoId,
 } from '@/lib/storage';
 import { DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
 import { useAuth } from '@/context/AuthContext';
@@ -245,8 +246,28 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       console.log('Context: Fetched updated links', updatedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
       
+      // Remove duplicates by URL/video ID first
+      const seenUrls = new Set<string>();
+      const seenVideoIds = new Set<string>();
+      const uniqueLinks: YoutubeLink[] = [];
+      
+      for (const link of updatedLinks) {
+        const normalizedUrl = link.url.trim();
+        const videoId = extractVideoId(normalizedUrl);
+        const urlExists = seenUrls.has(normalizedUrl);
+        const videoIdExists = videoId && seenVideoIds.has(videoId);
+        
+        if (!urlExists && !videoIdExists) {
+          seenUrls.add(normalizedUrl);
+          if (videoId) {
+            seenVideoIds.add(videoId);
+          }
+          uniqueLinks.push(link);
+        }
+      }
+      
       // Ensure only one link is active and matches current workout duration
-      const normalizedLinks = updatedLinks.map(link => {
+      const normalizedLinks = uniqueLinks.map(link => {
         const videoDuration = extractDurationFromTitle(link.title);
         // Only activate if it matches the current workout duration
         const shouldBeActive = link.id === id && videoDuration === updatedSettings.workoutMinutes;
@@ -268,8 +289,28 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getYoutubeLinks(),
         getSettings(),
       ]);
+      // Remove duplicates by URL/video ID first
+      const seenUrls = new Set<string>();
+      const seenVideoIds = new Set<string>();
+      const uniqueLinks: YoutubeLink[] = [];
+      
+      for (const link of updatedLinks) {
+        const normalizedUrl = link.url.trim();
+        const videoId = extractVideoId(normalizedUrl);
+        const urlExists = seenUrls.has(normalizedUrl);
+        const videoIdExists = videoId && seenVideoIds.has(videoId);
+        
+        if (!urlExists && !videoIdExists) {
+          seenUrls.add(normalizedUrl);
+          if (videoId) {
+            seenVideoIds.add(videoId);
+          }
+          uniqueLinks.push(link);
+        }
+      }
+      
       // Ensure only clicked link is active and matches current workout duration
-      const normalizedLinks = updatedLinks.map(link => {
+      const normalizedLinks = uniqueLinks.map(link => {
         const videoDuration = extractDurationFromTitle(link.title);
         // Only activate if it matches the current workout duration
         const shouldBeActive = link.id === id && videoDuration === updatedSettings.workoutMinutes;
