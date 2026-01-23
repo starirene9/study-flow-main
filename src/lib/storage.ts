@@ -51,8 +51,10 @@ export const getSettings = async (): Promise<UserSettings> => {
       const localSettings = getSettingsLocal();
       // Ensure workoutMinutes is at least 15 for new default
       const workoutMinutes = data.workout_minutes < 15 ? 15 : data.workout_minutes;
+      // Ensure focusMinutes is at least 45 for new default
+      const focusMinutes = data.focus_minutes < 45 ? 45 : data.focus_minutes;
       return {
-        focusMinutes: data.focus_minutes,
+        focusMinutes: focusMinutes,
         workoutMinutes: workoutMinutes,
         activeYoutubeUrl: data.active_youtube_url,
         primaryColorTheme: localSettings.primaryColorTheme || 'blue',
@@ -86,6 +88,10 @@ export const getSettingsLocal = (): UserSettings => {
     // Ensure workoutMinutes is at least 15 for new default
     if (parsed.workoutMinutes !== undefined && parsed.workoutMinutes < 15) {
       parsed.workoutMinutes = 15;
+    }
+    // Ensure focusMinutes is at least 45 for new default
+    if (parsed.focusMinutes !== undefined && parsed.focusMinutes < 45) {
+      parsed.focusMinutes = 45;
     }
     return parsed;
   }
