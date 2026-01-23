@@ -23,6 +23,7 @@ import {
   deleteYoutubeLink as deleteLinkStorage,
   getRandomVideo,
   setCurrentUserId,
+  extractDurationFromTitle,
 } from '@/lib/storage';
 import { DEFAULT_YOUTUBE_LINKS } from '@/types/studyflow';
 import { useAuth } from '@/context/AuthContext';
@@ -101,8 +102,12 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Current workout video (randomly selected each workout session)
   const [currentWorkoutVideo, setCurrentWorkoutVideo] = useState<YoutubeLink | null>(null);
   
-  // Get active YouTube link (for display purposes)
-  const activeLink = youtubeLinks.find((link) => link.isActive) || null;
+  // Get active YouTube link (for display purposes) - must match current workout duration
+  const activeLink = youtubeLinks.find((link) => {
+    if (!link.isActive) return false;
+    const videoDuration = extractDurationFromTitle(link.title);
+    return videoDuration === settings.workoutMinutes;
+  }) || null;
   
   // 사용자 ID 동기화
   useEffect(() => {
@@ -153,7 +158,30 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
     await saveSettings(updated);
-  }, [settings]);
+    
+    // If workout minutes changed, deactivate any active video that doesn't match the new duration
+    if (newSettings.workoutMinutes !== undefined && newSettings.workoutMinutes !== settings.workoutMinutes) {
+      const activeLink = youtubeLinks.find((link) => link.isActive);
+      if (activeLink) {
+        const videoDuration = extractDurationFromTitle(activeLink.title);
+        if (videoDuration !== newSettings.workoutMinutes) {
+          // Deactivate the current active link if it doesn't match the new workout duration
+          const updatedLinks = youtubeLinks.map(link => ({
+            ...link,
+            isActive: false,
+          }));
+          setYoutubeLinks(updatedLinks);
+          // Also update in storage
+          const allLinks = await getYoutubeLinks();
+          const linksToUpdate = allLinks.map(link => ({
+            ...link,
+            isActive: false,
+          }));
+          await saveYoutubeLinks(linksToUpdate);
+        }
+      }
+    }
+  }, [settings, youtubeLinks]);
   
   // YouTube Link management
   const addYoutubeLink = useCallback(async (url: string, title?: string) => {
@@ -217,11 +245,16 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       console.log('Context: Fetched updated links', updatedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
       
-      // Ensure only one link is active
-      const normalizedLinks = updatedLinks.map(link => ({
-        ...link,
-        isActive: link.id === id, // Force the clicked link to be active
-      }));
+      // Ensure only one link is active and matches current workout duration
+      const normalizedLinks = updatedLinks.map(link => {
+        const videoDuration = extractDurationFromTitle(link.title);
+        // Only activate if it matches the current workout duration
+        const shouldBeActive = link.id === id && videoDuration === updatedSettings.workoutMinutes;
+        return {
+          ...link,
+          isActive: shouldBeActive,
+        };
+      });
       
       console.log('Context: Setting normalized links', normalizedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
       
@@ -235,11 +268,16 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getYoutubeLinks(),
         getSettings(),
       ]);
-      // Ensure only clicked link is active
-      const normalizedLinks = updatedLinks.map(link => ({
-        ...link,
-        isActive: link.id === id,
-      }));
+      // Ensure only clicked link is active and matches current workout duration
+      const normalizedLinks = updatedLinks.map(link => {
+        const videoDuration = extractDurationFromTitle(link.title);
+        // Only activate if it matches the current workout duration
+        const shouldBeActive = link.id === id && videoDuration === updatedSettings.workoutMinutes;
+        return {
+          ...link,
+          isActive: shouldBeActive,
+        };
+      });
       setYoutubeLinks(normalizedLinks);
       setSettings(updatedSettings);
     }

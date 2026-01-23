@@ -299,6 +299,14 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
       return;
     }
 
+    // Verify that the video duration matches the current workout duration
+    const settings = await getSettings();
+    const videoDuration = extractDurationFromTitle(linkToActivate.title);
+    if (videoDuration !== settings.workoutMinutes) {
+      console.error(`Cannot activate video: duration (${videoDuration} min) does not match workout duration (${settings.workoutMinutes} min)`);
+      throw new Error(`Video duration (${videoDuration} min) does not match workout duration (${settings.workoutMinutes} min)`);
+    }
+
     // 사용자가 추가한 링크인지 확인 (기본 링크는 ID가 'default-'로 시작)
     const isDefaultLink = id.startsWith('default-');
     
@@ -330,7 +338,6 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
     }
 
     // 설정에 활성 링크 URL 저장 (기본 링크든 사용자 추가 링크든 상관없이)
-    const settings = await getSettings();
     settings.activeYoutubeUrl = linkToActivate.url;
     await saveSettings(settings);
   } catch (error) {
@@ -455,12 +462,12 @@ export const extractDurationFromTitle = (title: string): number | null => {
   return match ? parseInt(match[1], 10) : null;
 };
 
-// Get filtered videos based on workout duration
+// Get filtered videos based on workout duration (must match exactly)
 export const getFilteredVideos = async (workoutMinutes: number): Promise<YoutubeLink[]> => {
   const links = await getYoutubeLinks();
   return links.filter((link) => {
     const videoDuration = extractDurationFromTitle(link.title);
-    return videoDuration === null || videoDuration <= workoutMinutes;
+    return videoDuration === workoutMinutes; // Must match exactly
   });
 };
 
