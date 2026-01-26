@@ -138,7 +138,29 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     // Combine default videos with user-added videos
     const combined = [...defaultVideosToShow, ...sortedUserVideos];
     
-    return combined;
+    // Remove duplicates by URL/video ID (keep first occurrence, prefer default videos)
+    const seenUrls = new Set<string>();
+    const seenVideoIds = new Set<string>();
+    const uniqueLinks: YoutubeLink[] = [];
+    
+    for (const link of combined) {
+      const normalizedUrl = link.url.trim();
+      const videoId = extractVideoId(normalizedUrl);
+      
+      // Check if URL or video ID already exists
+      const urlExists = seenUrls.has(normalizedUrl);
+      const videoIdExists = videoId && seenVideoIds.has(videoId);
+      
+      if (!urlExists && !videoIdExists) {
+        seenUrls.add(normalizedUrl);
+        if (videoId) {
+          seenVideoIds.add(videoId);
+        }
+        uniqueLinks.push(link);
+      }
+    }
+    
+    return uniqueLinks;
   }, [links, workoutMinutes, defaultVideoUrls]);
 
   // Store stable order in useEffect to avoid infinite loop
