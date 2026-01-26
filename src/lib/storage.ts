@@ -284,6 +284,9 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
   // Check for duplicate URL (both in user-added links and default links)
   const existingLinks = await getYoutubeLinks();
   const normalizedUrl = url.trim();
+  const normalizedTitle = title?.trim();
+  
+  // Check for duplicate URL/video ID
   const duplicateLink = existingLinks.find(link => {
     const existingUrl = link.url.trim();
     // Compare URLs directly and also by video ID
@@ -295,6 +298,19 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
   if (duplicateLink) {
     console.warn('Duplicate YouTube link detected:', normalizedUrl);
     throw new Error('This video URL already exists');
+  }
+  
+  // Check for duplicate title (case-insensitive)
+  if (normalizedTitle) {
+    const duplicateTitle = existingLinks.find(link => {
+      const existingTitle = link.title.trim();
+      return existingTitle.toLowerCase() === normalizedTitle.toLowerCase();
+    });
+    
+    if (duplicateTitle) {
+      console.warn('Duplicate video title detected:', normalizedTitle);
+      throw new Error('This video title already exists. Please use a different title.');
+    }
   }
 
   const newLink: YoutubeLink = {

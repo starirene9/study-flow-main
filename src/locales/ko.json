@@ -100,6 +100,7 @@
     "noVideos": "{{duration}}분 영상이 없습니다",
     "min": "분",
     "duplicateUrl": "이 영상 URL이 이미 존재합니다. 다른 영상을 추가해주세요.",
+    "duplicateTitle": "이 영상 제목이 이미 존재합니다. 다른 제목을 사용해주세요.",
     "addError": "영상 추가에 실패했습니다. 다시 시도해주세요.",
     "minimumVideosRequired": "{{duration}}분 영상은 최소 3개의 서로 다른 영상이 필요합니다. 이 영상을 삭제할 수 없습니다.",
     "minimumVideosWarning": "경고: {{duration}}분 영상은 최소 3개의 서로 다른 영상이 필요합니다.",

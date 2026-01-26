@@ -138,24 +138,28 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     // Combine default videos with user-added videos
     const combined = [...defaultVideosToShow, ...sortedUserVideos];
     
-    // Remove duplicates by URL/video ID (keep first occurrence, prefer default videos)
+    // Remove duplicates by URL/video ID and title (keep first occurrence, prefer default videos)
     const seenUrls = new Set<string>();
     const seenVideoIds = new Set<string>();
+    const seenTitles = new Set<string>();
     const uniqueLinks: YoutubeLink[] = [];
     
     for (const link of combined) {
       const normalizedUrl = link.url.trim();
+      const normalizedTitle = link.title.trim().toLowerCase();
       const videoId = extractVideoId(normalizedUrl);
       
-      // Check if URL or video ID already exists
+      // Check if URL, video ID, or title already exists
       const urlExists = seenUrls.has(normalizedUrl);
       const videoIdExists = videoId && seenVideoIds.has(videoId);
+      const titleExists = seenTitles.has(normalizedTitle);
       
-      if (!urlExists && !videoIdExists) {
+      if (!urlExists && !videoIdExists && !titleExists) {
         seenUrls.add(normalizedUrl);
         if (videoId) {
           seenVideoIds.add(videoId);
         }
+        seenTitles.add(normalizedTitle);
         uniqueLinks.push(link);
       }
     }
@@ -217,8 +221,14 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       } catch (error) {
         console.error('Error adding video:', error);
         // Show error message to user
-        if (error instanceof Error && error.message === 'This video URL already exists') {
-          alert(t('youtube.duplicateUrl') || 'This video URL already exists');
+        if (error instanceof Error) {
+          if (error.message === 'This video URL already exists') {
+            alert(t('youtube.duplicateUrl') || 'This video URL already exists');
+          } else if (error.message.includes('title already exists')) {
+            alert(t('youtube.duplicateTitle') || 'This video title already exists. Please use a different title.');
+          } else {
+            alert(t('youtube.addError') || 'Failed to add video. Please try again.');
+          }
         } else {
           alert(t('youtube.addError') || 'Failed to add video. Please try again.');
         }
