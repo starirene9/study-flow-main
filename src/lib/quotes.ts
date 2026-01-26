@@ -8,7 +8,7 @@ interface QuoteResponse {
 }
 
 /**
- * Fetch random English quote from Quotable API
+ * Fetch random English quote from Type.fit API (free, stable API)
  */
 export const fetchEnglishQuote = async (): Promise<string> => {
   // Fallback quotes
@@ -21,11 +21,12 @@ export const fetchEnglishQuote = async (): Promise<string> => {
   ];
 
   try {
-    // Add timeout to prevent hanging on SSL errors
+    // Add timeout to prevent hanging on network errors
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-    const response = await fetch('https://api.quotable.io/random?maxLength=100', {
+    // Use type.fit API - free, stable, no SSL issues
+    const response = await fetch('https://type.fit/api/quotes', {
       signal: controller.signal,
     });
     
@@ -35,7 +36,14 @@ export const fetchEnglishQuote = async (): Promise<string> => {
       throw new Error('Failed to fetch quote');
     }
     const data = await response.json();
-    return data.content || fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+    
+    // API returns array of quotes, pick a random one
+    if (Array.isArray(data) && data.length > 0) {
+      const randomQuote = data[Math.floor(Math.random() * data.length)];
+      return randomQuote.text || fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+    }
+    
+    throw new Error('Invalid response format');
   } catch (error) {
     // Silently handle error (including SSL errors) - no console log
     // Return random fallback quote
