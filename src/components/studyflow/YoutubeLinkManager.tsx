@@ -44,12 +44,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
 
   // Filter links to show videos that match workout duration exactly
   const filteredLinks = useMemo(() => {
-    console.log('Filtering links:', { 
-      totalLinks: links.length, 
-      workoutMinutes,
-      links: links.map(l => ({ title: l.title, url: l.url, isDefault: defaultVideoUrls.has(l.url) }))
-    });
-    
     // Separate user-added videos from default videos first
     const userAddedVideos = links.filter(
       (link) => !defaultVideoUrls.has(link.url)
@@ -57,11 +51,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     const defaultVideos = links.filter(
       (link) => defaultVideoUrls.has(link.url)
     );
-    
-    console.log('Separated:', { 
-      userAdded: userAddedVideos.length, 
-      default: defaultVideos.length 
-    });
     
     // Filter default videos by duration (must match exactly)
     const matchingDefaultVideos = defaultVideos.filter((link) => {
@@ -76,12 +65,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       // If duration is found, it must match exactly
       // If no duration found, don't show it (user should have selected duration when adding)
       return videoDuration === workoutMinutes;
-    });
-    
-    console.log('After duration filter:', { 
-      matchingUser: matchingUserVideos.length,
-      matchingDefault: matchingDefaultVideos.length,
-      userVideos: matchingUserVideos.map(v => ({ title: v.title, duration: extractDurationFromTitle(v.title) }))
     });
     
     // Check if we have a stable order for this duration
@@ -191,7 +174,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
       setIsProcessing(true);
       try {
         const duration = parseInt(selectedDuration, 10);
-        console.log('YoutubeLinkManager: Adding video', { url: newUrl, title: newTitle, duration });
         
         // Create title with selected duration
         let finalTitle = newTitle?.trim() || undefined;
@@ -205,9 +187,7 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
           finalTitle = `${duration} Min Workout Video`;
         }
         
-        console.log('YoutubeLinkManager: Calling onAdd with', { url: newUrl, title: finalTitle });
         await onAdd(newUrl, finalTitle);
-        console.log('YoutubeLinkManager: onAdd completed');
         
         // Clear form
         setNewUrl('');
@@ -217,21 +197,8 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
         
         // Wait a bit for parent state to update
         await new Promise(resolve => setTimeout(resolve, 400));
-        console.log('YoutubeLinkManager: State should be updated now');
       } catch (error) {
-        console.error('Error adding video:', error);
-        // Show error message to user
-        if (error instanceof Error) {
-          if (error.message === 'This video URL already exists') {
-            alert(t('youtube.duplicateUrl') || 'This video URL already exists');
-          } else if (error.message.includes('title already exists')) {
-            alert(t('youtube.duplicateTitle') || 'This video title already exists. Please use a different title.');
-          } else {
-            alert(t('youtube.addError') || 'Failed to add video. Please try again.');
-          }
-        } else {
-          alert(t('youtube.addError') || 'Failed to add video. Please try again.');
-        }
+        // Silently handle error - no user message
       } finally {
         setIsProcessing(false);
       }
@@ -248,7 +215,6 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     // Get video duration from title
     const videoDuration = extractDurationFromTitle(currentLink?.title || '');
     if (!videoDuration) {
-      console.warn('Cannot extract duration from video title:', currentLink?.title);
       return;
     }
     
@@ -258,9 +224,8 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     
     // Optimistically update UI immediately without showing disabled state
     // Call onActivate in background without blocking UI
-    onActivate(id).catch((error) => {
-      console.error('Error activating video:', error);
-      // Optionally show error toast here if needed
+    onActivate(id).catch(() => {
+      // Silently handle error
     });
   };
 
@@ -298,17 +263,15 @@ const YoutubeLinkManager: React.FC<YoutubeLinkManagerProps> = ({
     
     // If this is the only unique video with this ID and we'd have less than 3 after deletion, prevent deletion
     if (videosWithSameId.length === 1 && uniqueVideoIds.size <= 3) {
-      alert(t('youtube.minimumVideosRequired', { duration: workoutMinutes }) || `You must have at least 3 different videos for ${workoutMinutes} minutes. Cannot delete this video.`);
+      // Silently prevent deletion - no user message
       return;
     }
     
-    // Confirm before deleting
-    if (window.confirm(t('youtube.delete'))) {
-      try {
-        await onDelete(id);
-      } catch (error) {
-        console.error('Error deleting video:', error);
-      }
+    // Delete without confirmation
+    try {
+      await onDelete(id);
+    } catch (error) {
+      // Silently handle error - no user message
     }
   };
   

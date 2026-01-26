@@ -102,7 +102,7 @@ const Focus = () => {
         const quote = await fetchRandomQuote(i18n.language);
         setRandomQuote(quote);
       } catch (error) {
-        console.error('Error loading quote:', error);
+        // Silently handle error - no console log
         // Set fallback message
         setRandomQuote(i18n.language === 'ko' 
           ? '집중하고 계속 나아가세요.' 

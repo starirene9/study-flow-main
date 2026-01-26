@@ -19,7 +19,7 @@ export const fetchEnglishQuote = async (): Promise<string> => {
     const data = await response.json();
     return data.content || 'Stay focused and keep moving forward.';
   } catch (error) {
-    console.error('Error fetching English quote:', error);
+    // Silently handle error - no console log
     // Fallback quotes
     const fallbackQuotes = [
       'The only way to do great work is to love what you do.',
@@ -42,9 +42,10 @@ export const fetchKoreanQuote = async (): Promise<string> => {
       throw new Error('Failed to fetch Korean quote');
     }
     const data = await response.json();
-    return data.advice || '집중하고 계속 나아가세요.';
+    // API는 'message' 필드를 반환합니다 (not 'advice')
+    return data.message || '집중하고 계속 나아가세요.';
   } catch (error) {
-    console.error('Error fetching Korean quote:', error);
+    // Silently handle error - no console log
     // Fallback quotes in Korean
     const fallbackQuotes = [
       '작은 노력의 반복이 큰 성공을 만든다.',
