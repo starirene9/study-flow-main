@@ -35,6 +35,7 @@
     "paused": "Paused",
     "customMessage": "Custom Message",
     "customMessageDescription": "Set a personalized message to display during focus sessions",
+    "clickToEdit": "Click to edit message",
     "primaryColor": "Primary Color",
     "primaryColorDescription": "Choose your preferred focus color",
     "selected": "Selected:",

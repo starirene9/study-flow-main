@@ -35,6 +35,7 @@
     "paused": "일시정지",
     "customMessage": "커스텀 메시지",
     "customMessageDescription": "집중 세션 중에 표시할 개인화된 메시지를 설정하세요",
+    "clickToEdit": "클릭하여 메시지 수정",
     "primaryColor": "주 색상",
     "primaryColorDescription": "선호하는 집중 색상을 선택하세요",
     "selected": "선택됨:",
