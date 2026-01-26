@@ -11,12 +11,19 @@ interface TodayMiniSummaryProps {
 const TodayMiniSummary: React.FC<TodayMiniSummaryProps> = ({ summary }) => {
   const { t } = useTranslation();
   const formatTime = (minutes: number) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    // Round to 2 decimal places to avoid long decimal displays
+    const roundedMinutes = Math.round(minutes * 100) / 100;
+    const hrs = Math.floor(roundedMinutes / 60);
+    const mins = roundedMinutes % 60;
+    
     if (hrs > 0) {
-      return `${hrs}h ${mins}m`;
+      // Round minutes to 2 decimal places
+      const roundedMins = Math.round(mins * 100) / 100;
+      return `${hrs}h ${roundedMins.toFixed(2)}m`;
     }
-    return `${mins}m`;
+    // Round to 2 decimal places
+    const roundedMins = Math.round(mins * 100) / 100;
+    return `${roundedMins.toFixed(2)}m`;
   };
   
   return (
