@@ -41,6 +41,8 @@ const Focus = () => {
   const [mounted, setMounted] = useState(false);
   const [randomQuote, setRandomQuote] = useState<string>('');
   const { i18n } = useTranslation();
+  const [isEditingMessage, setIsEditingMessage] = useState(false);
+  const [editingMessage, setEditingMessage] = useState('');
   
   // Redirect if not in active session
   useEffect(() => {
@@ -122,6 +124,36 @@ const Focus = () => {
   const handleMessageChange = (message: string) => {
     setCustomMessage(message);
     updateSettings({ customFocusMessage: message });
+  };
+  
+  const handleMessageClick = () => {
+    if (sessionStatus === 'paused') return; // Don't allow editing when paused
+    setIsEditingMessage(true);
+    setEditingMessage(displayMessage);
+  };
+  
+  const handleMessageSave = () => {
+    if (editingMessage.trim().length > 0 && editingMessage.trim().length <= 50) {
+      handleMessageChange(editingMessage.trim());
+    } else {
+      setEditingMessage(displayMessage); // Reset to current message if invalid
+    }
+    setIsEditingMessage(false);
+  };
+  
+  const handleMessageCancel = () => {
+    setEditingMessage(displayMessage);
+    setIsEditingMessage(false);
+  };
+  
+  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleMessageSave();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleMessageCancel();
+    }
   };
   
   const handleSoundToggle = (enabled: boolean) => {
@@ -283,9 +315,25 @@ const Focus = () => {
               className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px]"
             >
               <TimerDisplay timeRemaining={timeRemaining} variant="focus" size="lg" />
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-2 text-center max-w-full">
-                {displayMessage}
-              </p>
+              {isEditingMessage ? (
+                <Input
+                  value={editingMessage}
+                  onChange={(e) => setEditingMessage(e.target.value)}
+                  onBlur={handleMessageSave}
+                  onKeyDown={handleMessageKeyDown}
+                  maxLength={50}
+                  className="text-xs sm:text-sm mt-2 px-2 text-center max-w-full h-8 sm:h-9 bg-background/90 border-primary/50 focus:border-primary"
+                  autoFocus
+                />
+              ) : (
+                <p 
+                  className="text-xs sm:text-sm text-muted-foreground mt-2 px-2 text-center max-w-full cursor-pointer hover:text-foreground transition-colors"
+                  onClick={handleMessageClick}
+                  title={sessionStatus === 'paused' ? '' : t('focus.clickToEdit') || 'Click to edit'}
+                >
+                  {displayMessage}
+                </p>
+              )}
             </ProgressRing>
           </div>
           
