@@ -69,7 +69,7 @@ const Index = () => {
       await signOut();
       navigate('/auth');
     } catch (error) {
-      console.error('Error signing out:', error);
+      // Silently handle error - no console log
     }
   };
   

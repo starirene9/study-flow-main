@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const { data, error } = await supabase.auth.getUser();
         if (error) {
-          console.error("Error fetching auth user:", error);
+          // Silently handle error - no console log
           setUser(null);
           syncUserId(null);
         } else if (data.user) {
@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           syncUserId(null);
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        // Silently handle error - no console log
         setUser(null);
         syncUserId(null);
       } finally {

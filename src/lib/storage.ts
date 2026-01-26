@@ -41,7 +41,7 @@ export const getSettings = async (): Promise<UserSettings> => {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching settings from Supabase:', error);
+      // Silently handle error - no console log
       // Fallback to localStorage
       return getSettingsLocal();
     }
@@ -61,7 +61,7 @@ export const getSettings = async (): Promise<UserSettings> => {
       };
     }
   } catch (error) {
-    console.error('Error fetching settings:', error);
+    // Silently handle error - no console log
     return getSettingsLocal();
   }
 
@@ -117,10 +117,10 @@ export const saveSettings = async (settings: UserSettings): Promise<void> => {
       );
 
     if (error) {
-      console.error('Error saving settings to Supabase:', error);
+      // Silently handle error - no console log
     }
   } catch (error) {
-    console.error('Error saving settings:', error);
+    // Silently handle error - no console log
   }
 };
 
@@ -146,7 +146,7 @@ export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
       .order("created_at", { ascending: true });
 
     if (error) {
-      console.error('Error fetching YouTube links from Supabase:', error);
+      // Silently handle error - no console log
       // 에러 발생 시 기본 링크만 반환
       return defaultLinks;
     }
@@ -186,7 +186,7 @@ export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
       } else {
         // If duplicate found and it's a user-added link, we should remove it from database
         // But for now, just skip it in the list
-        console.warn('Duplicate link detected and removed:', normalizedUrl);
+        // Silently skip duplicate - no console log
       }
     }
     
@@ -201,7 +201,7 @@ export const getYoutubeLinks = async (): Promise<YoutubeLink[]> => {
 
     return uniqueLinks;
   } catch (error) {
-    console.error('Error fetching YouTube links:', error);
+    // Silently handle error - no console log
     // 에러 발생 시 기본 링크만 반환
     return defaultLinks;
   }
@@ -266,12 +266,12 @@ export const saveYoutubeLinks = async (links: YoutubeLink[]): Promise<void> => {
         );
 
       if (error) {
-        console.error('Error saving YouTube links to Supabase:', error);
+        // Silently handle error - no console log
         saveYoutubeLinksLocal(links);
       }
     }
   } catch (error) {
-    console.error('Error saving YouTube links:', error);
+    // Silently handle error - no console log
     saveYoutubeLinksLocal(links);
   }
 };
@@ -296,7 +296,7 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
   });
 
   if (duplicateLink) {
-    console.warn('Duplicate YouTube link detected:', normalizedUrl);
+    // Silently handle duplicate - no console log
     throw new Error('This video URL already exists');
   }
   
@@ -308,7 +308,7 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
     });
     
     if (duplicateTitle) {
-      console.warn('Duplicate video title detected:', normalizedTitle);
+      // Silently handle duplicate - no console log
       throw new Error('This video title already exists. Please use a different title.');
     }
   }
@@ -334,13 +334,13 @@ export const addYoutubeLink = async (url: string, title?: string): Promise<Youtu
       });
 
     if (error) {
-      console.error('Error adding YouTube link to Supabase:', error);
+      // Silently handle error - no console log
       const links = await getYoutubeLinks();
       links.push(newLink);
       await saveYoutubeLinks(links);
     }
   } catch (error) {
-    console.error('Error adding YouTube link:', error);
+    // Silently handle error - no console log
     // Re-throw if it's a duplicate error
     if (error instanceof Error && error.message === 'This video URL already exists') {
       throw error;
@@ -362,13 +362,13 @@ export const deleteYoutubeLink = async (id: string): Promise<void> => {
       .eq("user_id", getUserId());
 
     if (error) {
-      console.error('Error deleting YouTube link from Supabase:', error);
+      // Silently handle error - no console log
       const links = await getYoutubeLinks();
       const filtered = links.filter((link) => link.id !== id);
       await saveYoutubeLinks(filtered);
     }
   } catch (error) {
-    console.error('Error deleting YouTube link:', error);
+    // Silently handle error - no console log
     const links = await getYoutubeLinks();
     const filtered = links.filter((link) => link.id !== id);
     await saveYoutubeLinks(filtered);
@@ -382,14 +382,14 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
     const linkToActivate = allLinks.find(link => link.id === id);
     
     if (!linkToActivate) {
-      console.error('Link not found:', id);
+      // Silently handle error - no console log
       return;
     }
 
     // Get video duration from title
     const videoDuration = extractDurationFromTitle(linkToActivate.title);
     if (!videoDuration) {
-      console.error('Cannot extract duration from video title:', linkToActivate.title);
+      // Silently handle error - no console log
       throw new Error('Cannot determine video duration from title');
     }
 
@@ -398,7 +398,7 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
     
     // If video duration doesn't match current workout duration, update workout duration to match video
     if (videoDuration !== settings.workoutMinutes) {
-      console.log(`Video duration (${videoDuration} min) doesn't match workout duration (${settings.workoutMinutes} min). Updating workout duration to ${videoDuration} min.`);
+      // Silently update workout duration - no console log
       settings.workoutMinutes = videoDuration;
       await saveSettings(settings);
     }
@@ -415,7 +415,7 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
         .eq("user_id", getUserId());
 
       if (updateAllError) {
-        console.error('Error deactivating all links:', updateAllError);
+        // Silently handle error - no console log
       }
 
       // 선택한 링크를 활성화
@@ -428,7 +428,7 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
         .single();
 
       if (updateError) {
-        console.error('Error activating YouTube link:', updateError);
+        // Silently handle error - no console log
         throw updateError;
       }
     }
@@ -437,7 +437,7 @@ export const activateYoutubeLink = async (id: string): Promise<void> => {
     settings.activeYoutubeUrl = linkToActivate.url;
     await saveSettings(settings);
   } catch (error) {
-    console.error('Error activating YouTube link:', error);
+    // Silently handle error - no console log
     // Fallback: 링크 목록을 가져와서 활성 링크만 설정
     const links = await getYoutubeLinks();
     const activeLink = links.find((l) => l.id === id);
@@ -465,7 +465,7 @@ export const getSessionLogs = async (date?: string): Promise<SessionLog[]> => {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching session logs from Supabase:', error);
+      // Silently handle error - no console log
       return getSessionLogsLocal(date);
     }
 
@@ -489,7 +489,7 @@ export const getSessionLogs = async (date?: string): Promise<SessionLog[]> => {
       });
     }
   } catch (error) {
-    console.error('Error fetching session logs:', error);
+    // Silently handle error - no console log
     return getSessionLogsLocal(date);
   }
 
@@ -536,13 +536,13 @@ export const saveSessionLog = async (log: Omit<SessionLog, 'id'>): Promise<Sessi
       });
 
     if (error) {
-      console.error('Error saving session log to Supabase:', error);
+      // Silently handle error - no console log
       const logs = await getSessionLogs();
       logs.push(newLog);
       saveSessionLogLocal(newLog);
     }
   } catch (error) {
-    console.error('Error saving session log:', error);
+    // Silently handle error - no console log
     saveSessionLogLocal(newLog);
   }
 

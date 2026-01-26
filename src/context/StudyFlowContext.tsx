@@ -144,7 +144,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         
         // 색상 테마는 Focus 페이지에서만 적용됩니다.
       } catch (error) {
-        console.error('Error loading initial data:', error);
+        // Silently handle error - no console log
       } finally {
         setIsLoading(false);
       }
@@ -187,36 +187,24 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // YouTube Link management
   const addYoutubeLink = useCallback(async (url: string, title?: string) => {
     try {
-      console.log('Context: Adding video', { url, title });
       const newLink = await addLinkStorage(url, title);
-      console.log('Context: Video added to storage', newLink);
       
       // Longer delay to ensure database update is complete and propagated
       await new Promise(resolve => setTimeout(resolve, 300));
       
       // Force refresh links from storage multiple times to ensure we get the latest
       let updatedLinks = await getYoutubeLinks();
-      console.log('Context: First fetch', updatedLinks.length, 'links');
       
       // If new link not found, try again
       if (!updatedLinks.find(l => l.id === newLink.id || l.url === newLink.url)) {
-        console.log('Context: New link not found, retrying...');
         await new Promise(resolve => setTimeout(resolve, 200));
         updatedLinks = await getYoutubeLinks();
-        console.log('Context: Second fetch', updatedLinks.length, 'links');
       }
-      
-      console.log('Context: Final links', updatedLinks.map(l => ({ 
-        id: l.id, 
-        title: l.title, 
-        url: l.url,
-        isUserAdded: !DEFAULT_YOUTUBE_LINKS.some(d => d.url === l.url) 
-      })));
       
       // Create new array reference to trigger re-render
       setYoutubeLinks([...updatedLinks]);
     } catch (error) {
-      console.error('Error in addYoutubeLink:', error);
+      // Silently handle error - no console log
       // Still try to refresh
       const updatedLinks = await getYoutubeLinks();
       setYoutubeLinks([...updatedLinks]);
@@ -231,9 +219,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   
   const activateYoutubeLink = useCallback(async (id: string) => {
     try {
-      console.log('Context: Activating link', id);
       await activateLinkStorage(id);
-      console.log('Context: Link activated in storage');
       
       // Small delay to ensure database update is complete
       await new Promise(resolve => setTimeout(resolve, 150));
@@ -243,8 +229,6 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getYoutubeLinks(),
         getSettings(),
       ]);
-      
-      console.log('Context: Fetched updated links', updatedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
       
       // Remove duplicates by URL/video ID first
       const seenUrls = new Set<string>();
@@ -278,13 +262,11 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         };
       });
       
-      console.log('Context: Setting normalized links', normalizedLinks.map(l => ({ id: l.id, title: l.title, isActive: l.isActive })));
-      
       // Update state directly - this will trigger re-render
       setYoutubeLinks(normalizedLinks);
       setSettings(updatedSettings);
     } catch (error) {
-      console.error('Error in activateYoutubeLink:', error);
+      // Silently handle error - no console log
       // Still try to refresh the data
       const [updatedLinks, updatedSettings] = await Promise.all([
         getYoutubeLinks(),
@@ -332,15 +314,6 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const durationSeconds = (endTime.getTime() - startTime.getTime()) / 1000;
     const durationMinutes = durationSeconds / 60; // Keep decimal precision for seconds
     
-    console.log('Logging session:', {
-      type,
-      durationSeconds,
-      durationMinutes,
-      startTime,
-      endTime,
-      isCompleted,
-    });
-    
     const log = await saveSessionLog({
       sessionDate: getTodayDate(),
       type,
@@ -351,12 +324,9 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       isCompleted,
     });
     
-    console.log('Session log saved:', log);
-    
     setTodayLogs((prev) => [...prev, log]);
     // Refresh today's logs
     const updatedLogs = await getSessionLogs(getTodayDate());
-    console.log('All logs after save:', updatedLogs);
     setTodayLogs(updatedLogs);
   }, []);
   
@@ -446,14 +416,6 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // This accounts for pause/resume and gives accurate study time
     const actualElapsedSeconds = totalTime > 0 ? (totalTime - timeRemaining) : 0;
     
-    console.log('Stop session:', {
-      type: currentSessionType,
-      totalTime,
-      timeRemaining,
-      actualElapsedSeconds,
-      actualElapsedMinutes: actualElapsedSeconds / 60,
-    });
-    
     // Log any session that has elapsed time (even less than 1 minute)
     if (sessionStartRef.current && actualElapsedSeconds > 0) {
       const endTime = new Date();
@@ -462,14 +424,6 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       const videoUrl = currentSessionType === 'WORKOUT' ? currentWorkoutVideo?.url : undefined;
       
-      console.log('Logging stopped session:', {
-        type: currentSessionType,
-        startTime,
-        endTime,
-        durationSeconds: actualElapsedSeconds,
-        durationMinutes: actualElapsedSeconds / 60,
-      });
-      
       await logSession(currentSessionType, startTime, endTime, videoUrl, false);
       
       // Wait longer to ensure the log is saved to database
@@ -477,20 +431,7 @@ export const StudyFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       // Refresh today's logs to ensure they're up to date
       const updatedLogs = await getSessionLogs(getTodayDate());
-      console.log('Updated logs after stop:', updatedLogs.map(l => ({
-        type: l.type,
-        durationMinutes: l.durationMinutes,
-        startTime: l.startTime,
-        endTime: l.endTime,
-      })));
       setTodayLogs(updatedLogs);
-    } else {
-      if (!sessionStartRef.current) {
-        console.warn('No session start time found');
-      }
-      if (actualElapsedSeconds <= 0) {
-        console.warn('No elapsed time to log:', actualElapsedSeconds);
-      }
     }
     
     setSessionStatus('stopped');

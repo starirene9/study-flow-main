@@ -22,7 +22,7 @@ export const playBeepSound = (): void => {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.2);
   } catch (error) {
-    console.error('Error playing beep sound:', error);
+    // Silently handle error - no console log
     // Fallback: try using HTML5 Audio if Web Audio API is not available
     try {
       const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZURAJR6Hh8sVtJAUwgM3y2Yk3CBlo');
@@ -32,7 +32,6 @@ export const playBeepSound = (): void => {
       });
     } catch (fallbackError) {
       // Silently fail if audio cannot be played
-      console.warn('Audio playback not available');
     }
   }
 };

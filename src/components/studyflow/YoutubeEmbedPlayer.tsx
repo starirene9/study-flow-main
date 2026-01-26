@@ -78,7 +78,7 @@ const YoutubeEmbedPlayer: React.FC<YoutubeEmbedPlayerProps> = ({ url, sessionSta
         },
       });
     } catch (error) {
-      console.error('Error initializing YouTube player:', error);
+      // Silently handle error - no console log
       setEmbedError(true);
     }
   }, [isApiReady, videoId, playerId]);
@@ -94,7 +94,7 @@ const YoutubeEmbedPlayer: React.FC<YoutubeEmbedPlayerProps> = ({ url, sessionSta
         playerRef.current.playVideo();
       }
     } catch (error) {
-      console.error('Error controlling video:', error);
+      // Silently handle error - no console log
     }
   }, [sessionStatus]);
 
