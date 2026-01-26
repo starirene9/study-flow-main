@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PrimaryColorTheme, COLOR_THEMES } from '@/types/studyflow';
 import { applyColorTheme, resetToDefaultColor } from '@/lib/colorTheme';
+import { fetchRandomQuote } from '@/lib/quotes';
 import SessionHeader from '@/components/studyflow/SessionHeader';
 import TimerDisplay from '@/components/studyflow/TimerDisplay';
 import ProgressRing from '@/components/studyflow/ProgressRing';
@@ -38,6 +39,8 @@ const Focus = () => {
   const currentTheme = settings.primaryColorTheme || 'blue';
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [randomQuote, setRandomQuote] = useState<string>('');
+  const { i18n } = useTranslation();
   
   // Redirect if not in active session
   useEffect(() => {
@@ -89,6 +92,27 @@ const Focus = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+  
+  // Fetch random quote when cycle starts or language changes
+  useEffect(() => {
+    const loadQuote = async () => {
+      try {
+        const quote = await fetchRandomQuote(i18n.language);
+        setRandomQuote(quote);
+      } catch (error) {
+        console.error('Error loading quote:', error);
+        // Set fallback message
+        setRandomQuote(i18n.language === 'ko' 
+          ? '집중하고 계속 나아가세요.' 
+          : 'Stay focused and keep moving forward.');
+      }
+    };
+    
+    // Load quote when cycle count changes (new cycle) or language changes
+    if (sessionStatus === 'running' && currentSessionType === 'FOCUS') {
+      loadQuote();
+    }
+  }, [cycleCount, i18n.language, sessionStatus, currentSessionType]);
   
   const handleColorChange = (theme: PrimaryColorTheme) => {
     updateSettings({ primaryColorTheme: theme });
@@ -274,10 +298,12 @@ const Focus = () => {
             variant="focus"
           />
           
-          {/* Motivational text */}
+          {/* Motivational quote */}
           <div className="text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <p className="text-muted-foreground text-sm">
-              {t('focus.deepWorkInProgress')}
+            <p className="text-muted-foreground text-sm px-4">
+              {randomQuote || (i18n.language === 'ko' 
+                ? '집중하고 계속 나아가세요.' 
+                : 'Stay focused and keep moving forward.')}
             </p>
           </div>
         </div>
