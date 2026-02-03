@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>StudyFlow - Focus. Move. Repeat.</title>
+    <link>https://study-flow-999.netlify.app/</link>
+    <description>A Pomodoro-style study timer with mandatory workout breaks. Stay focused, stay healthy.</description>
+    <language>en</language>
+    <lastBuildDate>2026-01-22T00:00:00Z</lastBuildDate>
+    <atom:link href="https://study-flow-999.netlify.app/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>StudyFlow Home</title>
+      <link>https://study-flow-999.netlify.app/</link>
+      <description>Start your focus and workout cycles. Set focus time, workout duration, and select videos.</description>
+      <pubDate>2026-01-22T00:00:00Z</pubDate>
+      <guid isPermaLink="true">https://study-flow-999.netlify.app/</guid>
+    </item>
+    <item>
+      <title>Focus Session</title>
+      <link>https://study-flow-999.netlify.app/focus</link>
+      <description>Deep work in progress. Your workout awaits after this session.</description>
+      <pubDate>2026-01-22T00:00:00Z</pubDate>
+      <guid isPermaLink="true">https://study-flow-999.netlify.app/focus</guid>
+    </item>
+    <item>
+      <title>Workout Break</title>
+      <link>https://study-flow-999.netlify.app/workout</link>
+      <description>Stand up and move. Follow along with your selected workout video.</description>
+      <pubDate>2026-01-22T00:00:00Z</pubDate>
+      <guid isPermaLink="true">https://study-flow-999.netlify.app/workout</guid>
+    </item>
+    <item>
+      <title>Daily Summary</title>
+      <link>https://study-flow-999.netlify.app/summary</link>
+      <description>View your daily focus and workout summary with hourly timeline.</description>
+      <pubDate>2026-01-22T00:00:00Z</pubDate>
+      <guid isPermaLink="true">https://study-flow-999.netlify.app/summary</guid>
+    </item>
+  </channel>
+</rss>
