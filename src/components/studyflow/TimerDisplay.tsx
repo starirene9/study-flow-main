@@ -20,11 +20,11 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
   return (
     <div
       className={cn(
-        'timer-display font-mono font-semibold tracking-tight',
+        'timer-display font-mono tracking-tight',
         'whitespace-nowrap overflow-hidden text-center',
-        size === 'sm' && 'text-2xl sm:text-3xl',
-        size === 'md' && 'text-3xl sm:text-4xl',
-        size === 'lg' && 'text-4xl sm:text-5xl md:text-6xl',
+        size === 'sm' && 'text-3xl sm:text-4xl font-bold',
+        size === 'md' && 'text-4xl sm:text-5xl font-bold',
+        size === 'lg' && 'text-6xl sm:text-7xl md:text-8xl font-black',
         variant === 'focus' ? 'text-primary' : 'text-workout'
       )}
       style={{
