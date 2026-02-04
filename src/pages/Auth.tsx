@@ -112,7 +112,7 @@ const Auth: React.FC = () => {
   // 이메일 인증 안내 페이지
   if (showEmailVerification) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background pt-safe">
       <div className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-5 sm:space-y-6 animate-scale-in relative">
         <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
           <LanguageToggle />
@@ -158,7 +158,7 @@ const Auth: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-6 sm:py-8">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-6 sm:py-8 pt-safe">
       <div className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-5 sm:space-y-6 animate-scale-in relative">
         <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
           <LanguageToggle />

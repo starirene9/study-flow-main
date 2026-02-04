@@ -167,9 +167,9 @@ const Focus = () => {
   const progress = totalTime > 0 ? ((totalTime - timeRemaining) / totalTime) * 100 : 0;
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen h-dvh max-h-dvh bg-background flex flex-col pt-safe overflow-hidden">
       {/* Settings and Dark Mode Buttons */}
-      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center gap-2">
+      <div className="absolute right-3 sm:right-4 z-10 flex items-center gap-2" style={{ top: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
         {/* Dark Mode Toggle */}
         {mounted && (
           <Tooltip>
@@ -300,29 +300,36 @@ const Focus = () => {
         </Popover>
       </div>
       
-      <main className="relative flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-12">
-        <div className="w-full max-w-sm flex flex-col items-center gap-6 sm:gap-8 animate-scale-in">
-          {/* Session Info */}
+      <main className="relative flex-1 grid grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center justify-items-center px-4 sm:px-6 py-2 sm:py-4 min-h-0 overflow-hidden">
+        {/* Session Info - top */}
+        <div className="w-full max-w-sm flex justify-center items-end min-h-0">
           <SessionHeader cycleCount={cycleCount} sessionType="FOCUS" />
-          
-          {/* Timer Ring */}
-          <div className="w-full flex justify-center">
+        </div>
+        
+        {/* Timer Ring + Controls - center */}
+        <div className="w-full max-w-sm flex flex-col items-center gap-3 sm:gap-6 animate-scale-in py-1 sm:py-2 min-h-0">
+          <div className="w-full flex justify-center flex-shrink-0">
             <ProgressRing 
               percent={progress} 
               variant="focus"
               size={280}
               strokeWidth={12}
-              className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px]"
+              className="w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] md:w-[280px] md:h-[280px]"
             >
               <TimerDisplay timeRemaining={timeRemaining} variant="focus" size="lg" />
               {isEditingMessage ? (
                 <Input
                   value={editingMessage}
                   onChange={(e) => setEditingMessage(e.target.value)}
-                  onBlur={handleMessageSave}
+                  onBlur={() => {
+                    handleMessageSave();
+                    requestAnimationFrame(() => {
+                      window.scrollTo(0, 0);
+                    });
+                  }}
                   onKeyDown={handleMessageKeyDown}
                   maxLength={50}
-                  className="text-xs sm:text-sm mt-2 px-2 text-center max-w-full h-8 sm:h-9 bg-background/90 border-primary/50 focus:border-primary"
+                  className="text-base mt-2 px-2 text-center max-w-full min-h-[2.5rem] bg-background/90 border-primary/50 focus:border-primary"
                   autoFocus
                 />
               ) : (
@@ -336,8 +343,6 @@ const Focus = () => {
               )}
             </ProgressRing>
           </div>
-          
-          {/* Controls */}
           <SessionControls
             status={sessionStatus}
             onPause={pauseSession}
@@ -345,15 +350,15 @@ const Focus = () => {
             onStop={stopSession}
             variant="focus"
           />
-          
-          {/* Motivational quote */}
-          <div className="text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <p className="text-muted-foreground text-sm px-4">
-              {randomQuote || (i18n.language === 'ko' 
-                ? '집중하고 계속 나아가세요.' 
-                : 'Stay focused and keep moving forward.')}
-            </p>
-          </div>
+        </div>
+        
+        {/* Motivational quote - bottom */}
+        <div className="w-full max-w-sm flex justify-center items-start min-h-0 py-1">
+          <p className="text-muted-foreground text-xs sm:text-sm px-4 text-center animate-fade-in line-clamp-2" style={{ animationDelay: '0.5s' }}>
+            {randomQuote || (i18n.language === 'ko' 
+              ? '집중하고 계속 나아가세요.' 
+              : 'Stay focused and keep moving forward.')}
+          </p>
         </div>
       </main>
     </div>

@@ -44,7 +44,7 @@ const Workout = () => {
   const videoTitle = currentWorkoutVideo?.title || t('workout.standUp');
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pt-safe">
       {/* Workout background - more energetic */}
       <div className="fixed inset-0 bg-gradient-to-br from-workout-soft via-background to-background pointer-events-none" />
       
