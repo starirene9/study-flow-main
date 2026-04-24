@@ -1,73 +1,93 @@
-# Welcome to your Lovable project
+# StudyFlow
 
-## Project info
+StudyFlow is a timer-first productivity web app that alternates between **Focus** and **Workout** sessions:
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Focus -> Workout -> Repeat**
 
-## How can I edit this code?
+It helps users maintain concentration, reduce sedentary study patterns, and review progress through daily summaries.
 
-There are several ways of editing your application.
+## Live Service
 
-**Use Lovable**
+- Production: `https://study-flow-999.netlify.app`
+- Repository: `https://github.com/starirene9/study-flow-main`
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Core Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- Focus/Workout cycle timer with automatic session transitions
+- Session controls: start, pause, resume, stop
+- Daily summary with focus/workout totals and timeline visualization
+- YouTube workout video management (selection, deduplication, activation)
+- Authentication with Supabase (sign up, sign in, sign out)
+- Password reset and password update flow
+- Bilingual UI (Korean/English) and dark mode
 
-**Use your preferred IDE**
+## Tech Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Frontend**: React 18, TypeScript, Vite
+- **UI**: Tailwind CSS, shadcn/ui, Radix UI
+- **Routing**: React Router v6
+- **State Management**: Context API (`AuthContext`, `StudyFlowContext`)
+- **Data/Auth**: Supabase
+- **Deployment**: Netlify
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Architecture at a Glance
 
-Follow these steps:
+- `src/pages/`: Route-level screens (`/`, `/focus`, `/workout`, `/summary`, `/auth`)
+- `src/context/AuthContext.tsx`: Auth lifecycle and auth actions
+- `src/context/StudyFlowContext.tsx`: Timer/session domain state and transitions
+- `src/lib/storage.ts`: Settings, logs, and YouTube link persistence
+- `src/lib/supabase.ts`: Supabase client initialization (env-variable enforced)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Local Development
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 1) Prerequisites
 
-# Step 3: Install the necessary dependencies.
-npm i
+- Node.js 18+
+- npm
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 2) Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+The app is configured to fail fast if these variables are missing.
+
+### 3) Run
+
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+By default, Vite runs on `8080`, and if occupied it will use `8081` (or the next available port).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Build and Preview
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Deployment (Netlify)
 
-## What technologies are used for this project?
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Required env vars:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
 
-This project is built with:
+For Supabase Auth redirect flows, ensure:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Site URL: `https://study-flow-999.netlify.app`
+- Redirect URL: `https://study-flow-999.netlify.app/auth`
 
-## How can I deploy this project?
+## Roadmap
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- Fix CSS warning related to `@import` order in `index.css`
+- Introduce code-splitting to reduce large bundle warnings
+- Improve error logging strategy (development vs production)
+- Add E2E tests for auth and session transition regressions
