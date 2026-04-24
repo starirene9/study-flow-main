@@ -16,9 +16,14 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   isAuthLoading: boolean;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+  ) => Promise<{ needsEmailVerification: boolean }>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -95,13 +100,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signUp = useCallback(
     async (email: string, password: string) => {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
       if (error) {
         throw error;
       }
+
+      return { needsEmailVerification: !data.session };
     },
     [],
   );
@@ -126,6 +133,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const redirectTo = `${window.location.origin}/auth`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+    if (error) {
+      throw error;
+    }
+  }, []);
+
+  const updatePassword = useCallback(async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) {
+      throw error;
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -134,6 +160,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         signUp,
         signIn,
         signOut,
+        requestPasswordReset,
+        updatePassword,
       }}
     >
       {children}

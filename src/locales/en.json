@@ -79,6 +79,13 @@
     "verificationSent": "We've sent a verification email to {{email}}",
     "checkEmail": "Please check your email and click the verification link to complete your registration.",
     "backToSignIn": "Back to Sign In",
+    "resetPasswordTitle": "Reset Password",
+    "resetPasswordDescription": "Enter your account email and we will send a reset link.",
+    "sendResetLink": "Send Reset Link",
+    "resetSent": "We've sent a password reset email to {{email}}.",
+    "enterNewPassword": "Please enter your new password.",
+    "updatePassword": "Update Password",
+    "passwordUpdated": "Your password has been updated. Please sign in again.",
     "dataStoredSecurely": "Your data is stored securely in Supabase. You can log in from any device to continue your StudyFlow sessions.",
     "signedInAs": "Signed in as"
   },
